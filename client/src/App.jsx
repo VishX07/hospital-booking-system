@@ -1,25 +1,61 @@
 import { useEffect } from 'react';
-import api from './api/axios';
+import { RouterProvider } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
-function App() {
+import router from './routes/index.jsx';
+
+import { useAuthStore } from './store/auth.store.js';
+
+import ErrorBoundary from './utils/ErrorBoundary.jsx';
+
+const App = () => {
+  const fetchCurrentUser = useAuthStore((state) => state.fetchCurrentUser);
+
+  const loading = useAuthStore((state) => state.loading);
+
   useEffect(() => {
-    const testBackend = async () => {
-      try {
-        const res = await api.get('/test');
-        console.log(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
 
-    testBackend();
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
 
   return (
-    <div className="h-screen flex items-center justify-center bg-slate-900 text-white text-3xl font-bold">
-      Hospital Booking App
-    </div>
+    <ErrorBoundary>
+      <RouterProvider router={router} />
+
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+
+          style: {
+            borderRadius: '8px',
+            fontSize: '14px',
+          },
+
+          success: {
+            iconTheme: {
+              primary: '#0e9f9f',
+              secondary: '#fff',
+            },
+          },
+
+          error: {
+            iconTheme: {
+              primary: '#e74c3c',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
+    </ErrorBoundary>
   );
-}
+};
 
 export default App;
