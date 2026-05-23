@@ -1,0 +1,1780 @@
+{
+  "info": {
+    "_postman_id": "e71f2a98-9b13-4e41-af03-a50222529492",
+    "name": "Hospital-Booking-API",
+    "description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" alt=\"\" height=\"1530\" width=\"2162\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "33384114"
+  },
+  "item": [
+    {
+      "name": "AUTH",
+      "item": [
+        {
+          "name": "SignUp-Patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"Vishal Sambare\",\r\n  \"email\": \"vishalsambare2004@gmail.com\",\r\n  \"phoneNumber\": \"8793964438\",\r\n  \"password\": \"12345678\",\r\n  \"role\": \"patient\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/signup",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "signup"
+              ]
+            },
+            "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+          },
+          "response": []
+        },
+        {
+          "name": "SignUp-Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Successful PUT request\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Admin\",\n  \"email\": \"alphahospital.app@gmail.com\",\n  \"phoneNumber\": \"9850350196\",\n  \"password\": \"12345678\",\n  \"role\": \"doctor\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/signup",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "signup"
+              ]
+            },
+            "description": "This is a PUT request and it is used to overwrite an existing piece of data. For instance, after you create an entity with a POST request, you may want to modify that later. You can do that using a PUT request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful PUT request typically returns a `200 OK`, `201 Created`, or `204 No Content` response code."
+          },
+          "response": []
+        },
+        {
+          "name": "SignUp-Doctor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Successful POST request\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Prasad Sambare\",\n  \"email\": \"demoDoctor@gmail.com\",\n  \"phoneNumber\": \"8329485073\",\n  \"password\": \"12345678\",\n  \"role\": \"doctor\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/signup",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "signup"
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify-OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Successful DELETE request\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"demoDoctor@gmail.com\",\r\n  \"otp\": \"466136\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/verify-otp",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "verify-otp"
+              ]
+            },
+            "description": "This is a DELETE request, and it is used to delete data that was previously created via a POST request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful DELETE request typically returns a `200 OK`, `202 Accepted`, or `204 No Content` response code."
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Doctor",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identifier\": \"vishalsambare2003@gmail.com\",\r\n  \"password\": \"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Admin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identifier\": \"alphahospital.app@gmail.com\",\r\n  \"password\": \"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Patient",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identifier\": \"vishalsambare2004@gmail.com\",\r\n  \"password\": \"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get-Current-User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/me",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "LogOut",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/logout",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forget Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/logout",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Forget New Password",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\":\"vishalsambare2004@gmail.com\",\r\n    \"newPassword\":\"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/update-password",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "update-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/logout",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change New Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/logout",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Departments",
+      "item": [
+        {
+          "name": "Create Department",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Orthology\",\r\n  \"description\": \"Bones Department\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/departments",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "departments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Departments",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Neurology\",\r\n  \"description\": \"Brain department\"\r\n}   "
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/departments",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "departments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Department By ID",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Neurology\",\r\n  \"description\": \"Brain department\"\r\n}   "
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/departments/6a0ea91077bd6e0817ff2d39",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "departments",
+                "6a0ea91077bd6e0817ff2d39"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Department By ID",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Heart Care\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/departments/6a0b44b5aaccb63ccd1326da",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "departments",
+                "6a0b44b5aaccb63ccd1326da"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Department",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/departments/6a0ea91077bd6e0817ff2d39",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "departments",
+                "6a0ea91077bd6e0817ff2d39"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Department",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/departments/6a0ea91077bd6e0817ff2d39/restore",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "departments",
+                "6a0ea91077bd6e0817ff2d39",
+                "restore"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Doctors",
+      "item": [
+        {
+          "name": "Create Doctor Profile",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "department",
+                  "value": "6a0ea92977bd6e0817ff2d3a",
+                  "type": "text",
+                  "uuid": "6eaa1c11-a8f5-46c7-8d87-4b38b03bffba"
+                },
+                {
+                  "key": "specialization",
+                  "value": "Orthology and bones ",
+                  "type": "text",
+                  "uuid": "1d60c24c-bdb4-49f1-8179-87662aacbf27"
+                },
+                {
+                  "key": "qualification",
+                  "value": "MBBS , MMS",
+                  "type": "text",
+                  "uuid": "e6e2a420-1bdb-4109-9e20-b03fe1e5481b"
+                },
+                {
+                  "key": "bio",
+                  "value": "Experienced bones specialist",
+                  "type": "text",
+                  "uuid": "635f9cb4-e992-4045-8f83-88691e1e2b53"
+                },
+                {
+                  "key": "consultationMode",
+                  "value": "both",
+                  "type": "text",
+                  "uuid": "2839a1ba-5d52-4d79-aa97-fa5ca080dda5"
+                },
+                {
+                  "key": "consultationFee",
+                  "value": "2",
+                  "type": "text",
+                  "uuid": "167463f0-9d2d-457b-ad93-86542674207e"
+                },
+                {
+                  "key": "licenseDocument",
+                  "type": "file",
+                  "uuid": "534f3632-532c-4ddf-858e-741db1e3b89f",
+                  "src": "postman-cloud:///1efeb800-5585-4130-bc88-a8fa1cb568b2"
+                },
+                {
+                  "key": "experience",
+                  "value": "3",
+                  "type": "text",
+                  "uuid": "59361973-20ef-40ad-85d7-6366aac138e0"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/doctors/profile",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "doctors",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Doctor",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"approvalStatus\": \"approved\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/doctors/6a0eaaad77bd6e0817ff2d3f/approval",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "doctors",
+                "6a0eaaad77bd6e0817ff2d3f",
+                "approval"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Doctors",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"approvalStatus\": \"approved\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/doctors",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "doctors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Doctor By ID",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"approvalStatus\": \"approved\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/doctors/6a0b4682aaccb63ccd1326dc",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "doctors",
+                "6a0b4682aaccb63ccd1326dc"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Doctor Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"consultationFee\":\r\n 1500\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/doctors/profile",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "doctors",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pending Doctors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/doctors/pending",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "doctors",
+                "pending"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Schedules",
+      "item": [
+        {
+          "name": "Create Schedule",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"dayOfWeek\":\r\n   \"sunday\",\r\n  \"startTime\":\r\n   \"10:00\",\r\n  \"endTime\":\r\n   \"18:00\",\r\n  \"slotDuration\":\r\n   30,\r\n  \"breakStart\":\r\n   \"12:00\",\r\n  \"breakEnd\":\r\n   \"12:30\"\r\n}\r\n\r\n// wednesday tuesday",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/schedules",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "schedules"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/schedules/my",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "schedules",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Schedule for Public",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/schedules/doctor/6a0ea9e277bd6e0817ff2d3b",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "schedules",
+                "doctor",
+                "6a0ea9e277bd6e0817ff2d3b"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Schedule",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"dayOfWeek\":\r\n   \"sunday\",\r\n  \"startTime\":\r\n   \"10:00\",\r\n  \"endTime\":\r\n   \"18:00\",\r\n  \"slotDuration\":\r\n   30,\r\n  \"breakStart\":\r\n   \"12:00\",\r\n  \"breakEnd\":\r\n   \"12:30\",\r\n   \"isAvailable\":false\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/schedules/6a0ead0790f86b4bdfc498da",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "schedules",
+                "6a0ead0790f86b4bdfc498da"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle the Schedule",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/schedules/6a0ead1c90f86b4bdfc498de/toggle",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "schedules",
+                "6a0ead1c90f86b4bdfc498de",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Book Appointment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"doctorId\":\r\n   \"6a0ea9e277bd6e0817ff2d3b\",\r\n  \"appointmentDate\":\r\n   \"2026-05-23\",\r\n  \"timeSlot\":\r\n   \"12:30\",\r\n  \"consultationType\":\r\n   \"online\",\r\n  \"reasonForVisit\":\r\n   \"Demo For Online Meeting\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/appointments",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Appointment By Dctor",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/appointments/6a0e8d97cfd87a6e2643de42/confirm",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments",
+                "6a0e8d97cfd87a6e2643de42",
+                "confirm"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAppointmentById",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/appointments/6a0c589953fe07e8b6971ff9",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments",
+                "6a0c589953fe07e8b6971ff9"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patient My Appointments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/appointments/my",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Doctor All Appointmetns",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/appointments/doctor?type=upcoming",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments",
+                "doctor"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "upcoming"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Appointment By Both with req.user",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"cancelReason\":\r\n  \"Booked wrong slot\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/appointments/6a0ed8b028927d1d804c9b39/cancel",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments",
+                "6a0ed8b028927d1d804c9b39",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Appointment By Doctor",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"cancelReason\":\r\n \"Doctor unavailable\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/appointments/6a0c589953fe07e8b6971ff9/reject",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments",
+                "6a0c589953fe07e8b6971ff9",
+                "reject"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Appointment By Doctor",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/appointments/6a0d889a8741aa41dcfd1d09/complete",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments",
+                "6a0d889a8741aa41dcfd1d09",
+                "complete"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reschedule Appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"appointmentDate\":\r\n \"2026-05-28\",\r\n\r\n \"timeSlot\":\r\n \"02:00 PM\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/appointments/6a0ed98419333e5c06019bb6/reschedule",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments",
+                "6a0ed98419333e5c06019bb6",
+                "reschedule"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Slots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/appointments/doctor/6a0ea9e277bd6e0817ff2d3b/slots?date=2026-05-24",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments",
+                "doctor",
+                "6a0ea9e277bd6e0817ff2d3b",
+                "slots"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-05-24"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Available Dates of Doctor",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/appointments/doctor/6a0ea9e277bd6e0817ff2d3b/available-dates?month=5&year=2026",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "appointments",
+                "doctor",
+                "6a0ea9e277bd6e0817ff2d3b",
+                "available-dates"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "5"
+                },
+                {
+                  "key": "year",
+                  "value": "2026"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Profile-Photo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5OTZiOTY2MmNkMzQ1N2Q1YmE2NWZiMyIsImVtYWlsIjoiYWRtaW4xQGdtYWlsLmNvbSIsInJvbGUiOiJjaXRpemVuIiwiaWF0IjoxNzcxNDg1NTQzLCJleHAiOjE3NzIwOTAzNDN9.Td8V5pFd_xJv8p7bgkJrewNZO-hg-jQ5ceRSXDsina0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "profilePicture",
+                  "type": "file",
+                  "uuid": "6fccff1e-1043-4da0-b07d-f3a762defdea",
+                  "src": "postman-cloud:///1f098a0a-cd5d-46d0-93bc-c509f9aacf9c"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users/profile-photo",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "users",
+                "profile-photo"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Doctor Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/dashboard/doctor",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "dashboard",
+                "doctor"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patient Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/dashboard/patient",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "dashboard",
+                "patient"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/dashboard/admin",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "dashboard",
+                "admin"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get All Doctors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/admin/doctors?page=2",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "admin",
+                "doctors"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Patients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/admin/patients",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "admin",
+                "patients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Appointments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/admin/appointments?status=completed",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "admin",
+                "appointments"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "completed"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/notifications/my",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "notifications",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Read Notification",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/notifications/6a0d89068741aa41dcfd1d0b/read",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "notifications",
+                "6a0d89068741aa41dcfd1d0b",
+                "read"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Read All Notifications",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/notifications/read-all",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "notifications",
+                "read-all"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rating",
+      "item": [
+        {
+          "name": "Add Rating and Review",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"appointmentId\":\r\n \"6a0d889a8741aa41dcfd1d09\",\r\n\r\n \"rating\": 4.3,\r\n\r\n \"comment\":\r\n \"Very helpful doctor\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/reviews",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Doctor Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/reviews/doctor/6a0b4682aaccb63ccd1326dc",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "reviews",
+                "doctor",
+                "6a0b4682aaccb63ccd1326dc"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/reviews/my",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "reviews",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Reviews",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"rating\": 3.5,\r\n \"comment\":\r\n \"Average experience\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/reviews/6a0da693994b6c31233acefe",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "reviews",
+                "6a0da693994b6c31233acefe"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Doctor-Leaves",
+      "item": [
+        {
+          "name": "Create Leaves",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"startDate\":\r\n \"2026-05-20\",\r\n\r\n \"endDate\":\r\n \"2026-05-21\",\r\n\r\n \"reason\":\r\n \"Medical Conference\"\r\n//  \"forceCreate\":\r\n//  true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/doctor-leaves",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "doctor-leaves"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Leaves",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"startDate\":\r\n \"2026-05-25\",\r\n\r\n \"endDate\":\r\n \"2026-05-27\",\r\n\r\n \"reason\":\r\n \"Medical Conference\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/doctor-leaves/my",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "doctor-leaves",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Leaves",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"startDate\":\r\n \"2026-05-25\",\r\n\r\n \"endDate\":\r\n \"2026-05-27\",\r\n\r\n \"reason\":\r\n \"Medical Conference\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/doctor-leaves/6a0de0ffb62da6fecd28549d",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "doctor-leaves",
+                "6a0de0ffb62da6fecd28549d"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Prescreption",
+      "item": [
+        {
+          "name": "Create Prescription By Doctor",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"appointmentId\":\r\n \"6a0f086396872b7ac427e851\",\r\n\r\n \"diagnosis\":\r\n \"Viral Fever\",\r\n\r\n \"medicines\": [\r\n  {\r\n   \"name\":\r\n   \"Paracetamol\",\r\n\r\n   \"dosage\":\r\n   \"1 tablet\",\r\n\r\n   \"frequency\":\r\n   \"2 times daily\",\r\n\r\n   \"duration\":\r\n   \"5 days\"\r\n  },{\r\n   \"name\":\r\n   \"Paracetamol\",\r\n\r\n   \"dosage\":\r\n   \"1 tablet\",\r\n\r\n   \"frequency\":\r\n   \"2 times daily\",\r\n\r\n   \"duration\":\r\n   \"5 days\"\r\n  },{\r\n   \"name\":\r\n   \"Paracetamol\",\r\n\r\n   \"dosage\":\r\n   \"1 tablet\",\r\n\r\n   \"frequency\":\r\n   \"2 times daily\",\r\n\r\n   \"duration\":\r\n   \"5 days\"\r\n  }\r\n ],\r\n\r\n \"notes\":\r\n \"Drink more water\",\r\n\r\n \"followUpDate\":\r\n \"2026-05-30\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/prescriptions",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "prescriptions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Prescription By AppointementId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/prescriptions/appointment/6a0c589953fe07e8b6971ff9",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "prescriptions",
+                "appointment",
+                "6a0c589953fe07e8b6971ff9"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Prescription",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"appointmentId\":\r\n \"6a0c589953fe07e8b6971ff9\",\r\n\r\n \"diagnosis\":\r\n \"Viral Fever\",\r\n\r\n \"medicines\": [\r\n  {\r\n   \"name\":\r\n   \"Paracetamol\",\r\n\r\n   \"dosage\":\r\n   \"1 tablet\",\r\n\r\n   \"frequency\":\r\n   \"2 times daily\",\r\n\r\n   \"duration\":\r\n   \"5 days\"\r\n  }\r\n ],\r\n\r\n \"notes\":\r\n \"Drink more water\",\r\n\r\n \"followUpDate\":\r\n \"2026-05-30\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/prescriptions/my",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "prescriptions",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Prescription as Doctor",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\r\n//  \"notes\":\r\n//  \"Drink more water and take rest\",\r\n\r\n//  \"medicines\": [\r\n//   {\r\n//    \"name\":\r\n//    \"Paracetamol\",\r\n\r\n//    \"dosage\":\r\n//    \"1 tablet\",\r\n\r\n//    \"frequency\":\r\n//    \"3 times daily\",\r\n\r\n//    \"duration\":\r\n//    \"5 days\"\r\n//   }\r\n//  ]\r\n// }\r\n\r\n\r\n{\r\n  \"diagnosis\":\r\n  \"Viral Fever\",\r\n\r\n  \"medicines\": [\r\n    {\r\n      \"name\":\r\n      \"Paracetamol\",\r\n\r\n      \"dosage\":\r\n      \"1 tablet\",\r\n\r\n      \"frequency\":\r\n      \"2 times daily\",\r\n\r\n      \"duration\":\r\n      \"5 days\"\r\n    },\r\n\r\n    {\r\n      \"name\":\r\n      \"Vitamin C\",\r\n\r\n      \"dosage\":\r\n      \"1 tablet\",\r\n\r\n      \"frequency\":\r\n      \"1 time daily\",\r\n\r\n      \"duration\":\r\n      \"7 days\"\r\n    },\r\n\r\n    {\r\n      \"name\":\r\n      \"Cough Syrup\",\r\n\r\n      \"dosage\":\r\n      \"10 ml\",\r\n\r\n      \"frequency\":\r\n      \"3 times daily\",\r\n\r\n      \"duration\":\r\n      \"5 days\"\r\n    }\r\n  ],\r\n\r\n  \"notes\":\r\n  \"Drink more water and take rest\",\r\n\r\n  \"followUpDate\":\r\n  \"2026-05-30\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/prescriptions/6a0dfe0206a5b37d3ce1a587",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "prescriptions",
+                "6a0dfe0206a5b37d3ce1a587"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Download Prescription",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"appointmentId\":\r\n \"6a0c589953fe07e8b6971ff9\",\r\n\r\n \"diagnosis\":\r\n \"Viral Fever\",\r\n\r\n \"medicines\": [\r\n  {\r\n   \"name\":\r\n   \"Paracetamol\",\r\n\r\n   \"dosage\":\r\n   \"1 tablet\",\r\n\r\n   \"frequency\":\r\n   \"2 times daily\",\r\n\r\n   \"duration\":\r\n   \"5 days\"\r\n  }\r\n ],\r\n\r\n \"notes\":\r\n \"Drink more water\",\r\n\r\n \"followUpDate\":\r\n \"2026-05-30\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/prescriptions/6a0dfe0206a5b37d3ce1a587/download",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "prescriptions",
+                "6a0dfe0206a5b37d3ce1a587",
+                "download"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Follow Up Data",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"appointmentId\":\r\n \"6a0c589953fe07e8b6971ff9\",\r\n\r\n \"diagnosis\":\r\n \"Viral Fever\",\r\n\r\n \"medicines\": [\r\n  {\r\n   \"name\":\r\n   \"Paracetamol\",\r\n\r\n   \"dosage\":\r\n   \"1 tablet\",\r\n\r\n   \"frequency\":\r\n   \"2 times daily\",\r\n\r\n   \"duration\":\r\n   \"5 days\"\r\n  }\r\n ],\r\n\r\n \"notes\":\r\n \"Drink more water\",\r\n\r\n \"followUpDate\":\r\n \"2026-05-30\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/prescriptions/6a0dfe0206a5b37d3ce1a587/follow-up-data",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "prescriptions",
+                "6a0dfe0206a5b37d3ce1a587",
+                "follow-up-data"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Follow Up Data Copy",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"appointmentId\":\r\n \"6a0c589953fe07e8b6971ff9\",\r\n\r\n \"diagnosis\":\r\n \"Viral Fever\",\r\n\r\n \"medicines\": [\r\n  {\r\n   \"name\":\r\n   \"Paracetamol\",\r\n\r\n   \"dosage\":\r\n   \"1 tablet\",\r\n\r\n   \"frequency\":\r\n   \"2 times daily\",\r\n\r\n   \"duration\":\r\n   \"5 days\"\r\n  }\r\n ],\r\n\r\n \"notes\":\r\n \"Drink more water\",\r\n\r\n \"followUpDate\":\r\n \"2026-05-30\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/prescriptions/6a0dfe0206a5b37d3ce1a587/follow-up-data",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "prescriptions",
+                "6a0dfe0206a5b37d3ce1a587",
+                "follow-up-data"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "id",
+      "value": "1"
+    },
+    {
+      "key": "base_url",
+      "value": "https://template.postman-echo.com"
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+import asyncHandler from '../../utils/asyncHandler.js';
+import {
+  loginService,
+  sendPasswordResetOtpService,
+  signupService,
+  updatePasswordService,
+  verifyPasswordResetOtpService,
+} from './auth.service.js';
+import {
+  setTokenCookie,
+  clearTokenCookie,
+} from '../../services/token.service.js';
+import { verifyOTPService } from './auth.service.js';
+
+export const signup = asyncHandler(async (req, res) => {
+  const response = await signupService(req.body);
+
+  res.status(201).json({
+    success: true,
+    message: response.message,
+  });
+});
+
+export const verifyOTP = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+
+  const response = await verifyOTPService(email, otp);
+
+  setTokenCookie(res, response.token);
+
+  res.status(200).json({
+    success: true,
+    message: response.message,
+    user: response.user,
+  });
+});
+
+export const login = asyncHandler(async (req, res) => {
+  const { identifier, password } = req.body;
+
+  const response = await loginService(identifier, password);
+
+  setTokenCookie(res, response.token);
+
+  res.status(200).json({
+    success: true,
+    message: response.message,
+    user: response.user,
+  });
+});
+
+import Doctor from '../../models/Doctor.model.js';
+
+export const getCurrentUser = asyncHandler(async (req, res) => {
+  const {
+    _id,
+    fullName,
+    email,
+    phoneNumber,
+    role,
+    isVerified,
+    profilePicture,
+    gender,
+    dateOfBirth,
+  } = req.user;
+
+  let doctorProfile = null;
+
+  // if doctor then fetch doctor profile
+  if (role === 'doctor') {
+    doctorProfile = await Doctor.findOne({
+      userId: _id,
+    }).populate('department', 'name');
+  }
+
+  res.status(200).json({
+    success: true,
+
+    user: {
+      _id,
+      fullName,
+      email,
+      phoneNumber,
+      role,
+      isVerified,
+      profilePicture,
+      gender,
+      dateOfBirth,
+    },
+
+    doctorProfile,
+  });
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  clearTokenCookie(res);
+
+  res.status(200).json({
+    success: true,
+    message: 'Logout successful',
+  });
+});
+
+export const sendPasswordResetOtp = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  const response = await sendPasswordResetOtpService(email);
+
+  res.status(200).json(response);
+});
+export const sendChangePasswordOtp = asyncHandler(async (req, res) => {
+  const email = req.user.email;
+
+  const response = await sendPasswordResetOtpService(email);
+
+  res.status(200).json(response);
+});
+
+export const changePassword = asyncHandler(async (req, res) => {
+  const email = req.user.email;
+
+  const { otp, newPassword } = req.body;
+
+  const response = await updatePasswordService(email, otp, newPassword);
+
+  res.status(200).json(response);
+});
+
+export const updatePassword = asyncHandler(async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  const response = await updatePasswordService(email, otp, newPassword);
+
+  res.status(200).json(response);
+});
