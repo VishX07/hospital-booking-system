@@ -1,15 +1,374 @@
+/*
+ * PatientSidebar.jsx — AlphaCare Design System (Blue Theme)
+ * Sections:
+ *  1. Styles & Keyframes
+ *  2. AlphaLogo Sub-Component (animated SVG)
+ *  3. NavItem Sub-Component
+ *  4. SidebarContent Sub-Component
+ *  5. PatientSidebar Main Component
+ */
+
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
 import useAuthStore from '../../store/auth.store.js';
 import ROUTES from '../../constants/routes.js';
 
+/* === 1. STYLES & KEYFRAMES === */
+const sidebarStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+
+  .ps-root * { font-family: 'DM Sans', sans-serif; }
+  .ps-root .sora { font-family: 'Sora', sans-serif; }
+
+  @keyframes ps-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(1.5); }
+  }
+  @keyframes ps-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes ps-float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-3px); }
+  }
+  @keyframes ps-glow {
+    0%, 100% { box-shadow: 0 0 12px rgba(37,99,235,0.4); }
+    50%       { box-shadow: 0 0 22px rgba(37,99,235,0.7); }
+  }
+
+  .ps-spin  { animation: ps-spin 18s linear infinite; }
+  .ps-float { animation: ps-float 3.5s ease-in-out infinite; }
+  .ps-pulse { animation: ps-pulse 2s ease-in-out infinite; }
+  .ps-glow  { animation: ps-glow 2.5s ease-in-out infinite; }
+
+  .ps-nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #475569;
+    transition: background .18s, color .18s, transform .18s, box-shadow .18s;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .ps-nav-item:hover {
+    background: linear-gradient(135deg, #eff6ff, #eef2ff);
+    color: #2563eb;
+    transform: translateX(3px);
+  }
+  .ps-nav-item.active {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    color: white;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+    transform: translateX(2px);
+  }
+  .ps-nav-item.active .ps-nav-indicator {
+    opacity: 1;
+  }
+  .ps-nav-indicator {
+    position: absolute;
+    right: 12px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.7);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .ps-logout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ef4444;
+    transition: background .18s, transform .18s;
+    cursor: pointer;
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+  }
+  .ps-logout:hover {
+    background: #fef2f2;
+    transform: translateX(3px);
+  }
+
+  .ps-sidebar-gradient {
+    background: linear-gradient(180deg, #ffffff 0%, #fafcff 60%, #f0f5ff 100%);
+  }
+
+  .ps-logo-ring {
+    transform-origin: center;
+  }
+
+  .ps-footer-card {
+    background: linear-gradient(135deg, #eff6ff, #eef2ff);
+    border: 1px solid #bfdbfe;
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .ps-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+    margin: 6px 0;
+  }
+
+  .ps-section-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    padding: 0 14px;
+    margin-bottom: 4px;
+    margin-top: 8px;
+  }
+`;
+
+/* === 2. ALPHA LOGO SVG (Blue variant) === */
+const AlphaLogo = () => (
+  <div className="ps-float relative flex h-12 w-12 items-center justify-center flex-shrink-0">
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-full w-full"
+    >
+      <defs>
+        <linearGradient id="psLogoGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#1d4ed8" />
+          <stop offset="100%" stopColor="#4338ca" />
+        </linearGradient>
+        <linearGradient id="psLogoGrad2" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#60a5fa" />
+          <stop offset="100%" stopColor="#818cf8" />
+        </linearGradient>
+      </defs>
+
+      {/* Background rounded square */}
+      <rect width="48" height="48" rx="14" fill="url(#psLogoGrad)" />
+
+      {/* Spinning outer ring */}
+      <circle
+        cx="24"
+        cy="24"
+        r="20"
+        stroke="rgba(255,255,255,0.12)"
+        strokeWidth="1"
+        strokeDasharray="5 4"
+        className="ps-spin ps-logo-ring"
+      />
+
+      {/* Letter A */}
+      <path
+        d="M24 10 L33 34 H29.5 L27.5 28.5 H20.5 L18.5 34 H15 Z"
+        fill="white"
+        fillOpacity="0.95"
+      />
+      {/* Crossbar */}
+      <rect
+        x="21.2"
+        y="23"
+        width="5.6"
+        height="2.8"
+        rx="1.4"
+        fill="url(#psLogoGrad2)"
+      />
+
+      {/* Small medical cross bottom-right */}
+      <circle cx="37" cy="37" r="6" fill="rgba(255,255,255,0.18)" />
+      <path
+        d="M34.5 37h5M37 34.5v5"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+
+    {/* Pulse dot */}
+    <span
+      className="ps-pulse absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white"
+      style={{ background: '#60a5fa' }}
+    />
+  </div>
+);
+
+/* === 3. NAV ITEM SUB-COMPONENT === */
+const NavItem = ({ item, onClick }) => (
+  <NavLink
+    to={item.path}
+    onClick={onClick}
+    className={({ isActive }) => `ps-nav-item ${isActive ? 'active' : ''}`}
+  >
+    <span className="flex-shrink-0">{item.icon}</span>
+    <span className="flex-1 truncate">{item.name}</span>
+    <span className="ps-nav-indicator" />
+  </NavLink>
+);
+
+/* === 4. SIDEBAR CONTENT SUB-COMPONENT === */
+const SidebarContent = ({ menu, onClose, onLogout, user }) => (
+  <div className="ps-root ps-sidebar-gradient flex h-full flex-col">
+    {/* Header */}
+    <div
+      className="px-5 py-4"
+      style={{ borderBottom: '1px solid rgba(37,99,235,0.1)' }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <AlphaLogo />
+          <div>
+            <h1 className="sora text-lg font-extrabold tracking-tight text-slate-900 leading-tight">
+              AlphaCare
+            </h1>
+            <div
+              className="mt-0.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold"
+              style={{ background: 'rgba(37,99,235,0.1)', color: '#2563eb' }}
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-500 ps-pulse" />
+              Patient Portal
+            </div>
+          </div>
+        </div>
+
+        {/* Close — mobile only */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 text-slate-400 transition hover:bg-slate-50 hover:text-slate-700 lg:hidden"
+          aria-label="Close sidebar"
+        >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Patient quick info */}
+      {user && (
+        <div
+          className="mt-4 flex items-center gap-3 rounded-2xl p-3"
+          style={{
+            background: 'rgba(37,99,235,0.05)',
+            border: '1px solid rgba(37,99,235,0.1)',
+          }}
+        >
+          <div
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl text-sm font-bold"
+            style={{
+              background: 'linear-gradient(135deg, #dbeafe, #e0e7ff)',
+              color: '#1d4ed8',
+            }}
+          >
+            {user.fullName
+              ?.split(' ')
+              .map((n) => n[0])
+              .slice(0, 2)
+              .join('')
+              .toUpperCase() || 'P'}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-800">
+              {user.fullName}
+            </p>
+            <p className="truncate text-xs text-slate-500">{user.email}</p>
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* Nav */}
+    <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+      <p className="ps-section-label">Navigation</p>
+
+      {menu.slice(0, 4).map((item) => (
+        <NavItem key={item.path} item={item} onClick={onClose} />
+      ))}
+
+      <div className="ps-divider my-3" />
+      <p className="ps-section-label">Account</p>
+
+      {menu.slice(4).map((item) => (
+        <NavItem key={item.path} item={item} onClick={onClose} />
+      ))}
+
+      <div className="ps-divider my-3" />
+
+      <button type="button" onClick={onLogout} className="ps-logout">
+        <svg
+          className="h-5 w-5 flex-shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.9}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+          />
+        </svg>
+        <span>Logout</span>
+      </button>
+    </nav>
+
+    {/* Footer */}
+    <div className="px-3 pb-4">
+      <div className="ps-footer-card">
+        <div className="flex items-start gap-3">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.8}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"
+              />
+            </svg>
+          </div>
+          <div>
+            <p className="sora text-xs font-bold text-slate-800">Need Help?</p>
+            <p className="mt-0.5 text-xs leading-4 text-slate-500">
+              Manage appointments, doctors & prescriptions here.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+/* === 5. PATIENT SIDEBAR MAIN COMPONENT === */
 const PatientSidebar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const navigate = useNavigate();
   const logoutUser = useAuthStore((state) => state.logoutUser);
+  const user = useAuthStore((state) => state.user);
 
   const menu = [
     {
@@ -22,7 +381,6 @@ const PatientSidebar = () => {
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={1.9}
-          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -42,7 +400,6 @@ const PatientSidebar = () => {
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={1.9}
-          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -62,7 +419,6 @@ const PatientSidebar = () => {
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={1.9}
-          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -82,7 +438,6 @@ const PatientSidebar = () => {
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={1.9}
-          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -93,7 +448,7 @@ const PatientSidebar = () => {
       ),
     },
     {
-      name: 'My Notifications',
+      name: 'Notifications',
       path: ROUTES.NOTIFICATIONS,
       icon: (
         <svg
@@ -102,7 +457,6 @@ const PatientSidebar = () => {
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={1.9}
-          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -122,7 +476,6 @@ const PatientSidebar = () => {
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={1.9}
-          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -145,130 +498,29 @@ const PatientSidebar = () => {
     navigate(ROUTES.LOGIN);
   };
 
-  const closeSidebar = () => {
-    setSidebarOpen(false);
-  };
-
-  const SidebarContent = () => (
-    <div className="flex h-full flex-col">
-      <div className="border-b border-slate-100 px-6 py-5">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-900/20">
-              <svg
-                className="h-6 w-6"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
-              </svg>
-            </div>
-
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-slate-950">
-                AlphaCare
-              </h1>
-              <p className="text-xs font-medium text-slate-500">
-                Patient Portal
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={closeSidebar}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 lg:hidden"
-            aria-label="Close sidebar"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-5">
-        {menu.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            onClick={closeSidebar}
-            className={({ isActive }) =>
-              `group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
-                  : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'
-              }`
-            }
-          >
-            <span className="shrink-0">{item.icon}</span>
-            <span className="truncate">{item.name}</span>
-          </NavLink>
-        ))}
-
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50"
-        >
-          <span className="shrink-0">
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.9}
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-              />
-            </svg>
-          </span>
-          <span className="truncate">Logout</span>
-        </button>
-      </nav>
-
-      <div className="border-t border-slate-100 p-4">
-        <div className="rounded-2xl bg-blue-50 p-4">
-          <p className="text-sm font-bold text-slate-950">Need help?</p>
-          <p className="mt-1 text-xs leading-5 text-slate-500">
-            Manage appointments, doctors, and prescriptions from your dashboard.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  const closeSidebar = () => setSidebarOpen(false);
 
   return (
     <>
+      <style>{sidebarStyles}</style>
+
+      {/* Mobile hamburger */}
       <button
         type="button"
         onClick={() => setSidebarOpen(true)}
-        className="fixed left-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-900/20 transition hover:bg-blue-700 lg:hidden"
+        className="fixed left-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-lg transition hover:scale-105 lg:hidden"
+        style={{
+          background: 'linear-gradient(135deg, #1d4ed8, #4338ca)',
+          boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
+        }}
         aria-label="Open sidebar"
       >
         <svg
-          className="h-6 w-6"
+          className="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          strokeWidth={2}
-          aria-hidden="true"
+          strokeWidth={2.5}
         >
           <path
             strokeLinecap="round"
@@ -278,6 +530,7 @@ const PatientSidebar = () => {
         </svg>
       </button>
 
+      {/* Backdrop */}
       {sidebarOpen && (
         <button
           type="button"
@@ -287,12 +540,19 @@ const PatientSidebar = () => {
         />
       )}
 
+      {/* Sidebar panel */}
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen w-72 shrink-0 flex-col border-r border-slate-200 bg-white shadow-xl transition-transform duration-300 lg:sticky lg:z-auto lg:translate-x-0 lg:shadow-sm ${
+        className={`fixed left-0 top-0 z-50 flex h-screen w-64 shrink-0 flex-col border-r shadow-xl transition-transform duration-300 lg:sticky lg:z-auto lg:translate-x-0 lg:shadow-sm ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        style={{ borderColor: 'rgba(37,99,235,0.15)' }}
       >
-        <SidebarContent />
+        <SidebarContent
+          menu={menu}
+          onClose={closeSidebar}
+          onLogout={handleLogout}
+          user={user}
+        />
       </aside>
     </>
   );

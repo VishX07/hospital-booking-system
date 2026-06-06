@@ -5,6 +5,9 @@ import generateOTP from '../../utils/generateOTP.js';
 import { sendOTPEmail } from '../../services/email.service.js';
 import { generateToken } from '../../services/token.service.js';
 import bcrypt from 'bcryptjs';
+import { OAuth2Client } from 'google-auth-library';
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const signupService = async (userData) => {
   const { fullName, email, phoneNumber, password, role } = userData;
@@ -115,6 +118,11 @@ export const verifyOTPService = async (email, otp) => {
   };
 };
 
+// ─── loginService ─────────────────────────────────────────────────────────────
+// Fix: Previously threw "Please login using Google" for ANY user with
+// loginProvider === 'google'. Now only blocks pure Google accounts (those
+// with no password). Users who signed up manually and later linked Google
+// still have a password, so they can log in either way.
 export const loginService = async (identifier, password) => {
   // 1. Find user by email or phoneNumber
   const user = await User.findOne({
@@ -134,9 +142,14 @@ export const loginService = async (identifier, password) => {
     throw new ApiError(403, 'Please verify your email before logging in.');
   }
 
-  // 4. Google account — cannot login with password
-  if (user.loginProvider === 'google') {
-    throw new ApiError(400, 'Please login using Google.');
+  // 4. Pure Google account — has no password, cannot login with password.
+  //    Accounts that were manually created first (have a password) can still
+  //    use password login even after linking Google.
+  if (user.loginProvider === 'google' && !user.password) {
+    throw new ApiError(
+      400,
+      'This account uses Google login. Please sign in with Google.',
+    );
   }
 
   // 5. Compare password
@@ -159,6 +172,124 @@ export const loginService = async (identifier, password) => {
       fullName: user.fullName,
       email: user.email,
       phoneNumber: user.phoneNumber,
+      role: user.role,
+      isVerified: user.isVerified,
+    },
+  };
+};
+
+// export const googleLoginService = async (credential, role) => {
+//   const ticket = await client.verifyIdToken({
+//     idToken: credential,
+
+//     audience: process.env.GOOGLE_CLIENT_ID,
+//   });
+
+//   const payload = ticket.getPayload();
+
+//   const { sub, email, name, picture } = payload;
+
+//   let user = await User.findOne({
+//     email,
+//   });
+
+//   if (!user) {
+//     user = await User.create({
+//       fullName: name,
+
+//       email,
+
+//       role,
+
+//       profilePicture: picture,
+
+//       googleId: sub,
+
+//       loginProvider: 'google',
+
+//       isVerified: true,
+//     });
+//   }
+
+//   if (user.loginProvider === 'email' && !user.googleId) {
+//     user.googleId = sub;
+
+//     user.loginProvider = 'google';
+
+//     await user.save();
+//   }
+
+//   const token = generateToken(user._id);
+
+//   return {
+//     token,
+
+//     user: {
+//       _id: user._id,
+
+//       fullName: user.fullName,
+
+//       email: user.email,
+
+//       role: user.role,
+
+//       isVerified: user.isVerified,
+//     },
+//   };
+// };
+
+// ─── googleLoginService ────────────────────────────────────────────────────────
+// Fix: Previously, if a user signed up with email/password and then tried
+// Google login, it would error with "Please use Google login" because
+// loginProvider was 'email'. Now we allow email-signup users to also link
+// their Google account — they can use both methods after that.
+
+export const googleLoginService = async (credential) => {
+  const ticket = await client.verifyIdToken({
+    idToken: credential,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+  const payload = ticket.getPayload();
+  const { sub, email, name, picture } = payload;
+
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    // New user — create as patient (Google signup is patients-only,
+    // enforced on the frontend; this is a safety fallback)
+    user = await User.create({
+      fullName: name,
+      email,
+      role: 'patient',
+      profilePicture: picture,
+      googleId: sub,
+      loginProvider: 'google',
+      isVerified: true,
+    });
+  } else {
+    // Existing user — link Google account regardless of how they signed up.
+    // This allows manual-signup users to also use Google login going forward.
+    let changed = false;
+    if (!user.googleId) {
+      user.googleId = sub;
+      changed = true;
+    }
+    // Keep loginProvider as 'email' so password login still works.
+    // We only flip to 'google' if the account was purely Google-created.
+    // For accounts that started as email, we leave loginProvider untouched
+    // so both login methods remain valid.
+    if (changed) {
+      await user.save();
+    }
+  }
+
+  const token = generateToken(user._id);
+  return {
+    token,
+    user: {
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
       role: user.role,
       isVerified: user.isVerified,
     },

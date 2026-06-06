@@ -16,3 +16,19 @@ export const getDoctorSuggestions = (q) =>
       q,
     },
   });
+
+export const getMyPatients = () => api.get('/doctors/my-patients');
+
+export const getPatientDetails = async (patientId) => {
+  return await api.get(`/doctors/patients/${patientId}`);
+};
+
+export const createDoctorProfile = (formData) =>
+  api.post('/doctors/profile', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+export const updateDoctorProfile = (data) =>
+  api.patch('/doctors/profile', data);

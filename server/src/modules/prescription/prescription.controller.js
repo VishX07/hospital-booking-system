@@ -7,6 +7,7 @@ import {
   getMyPrescriptionsService,
   getPatientPrescriptionHistoryService,
   getPrescriptionByAppointmentService,
+  getPrescriptionByIdService,
   updatePrescriptionService,
 } from './prescription.service.js';
 
@@ -28,6 +29,8 @@ export const createPrescription = asyncHandler(async (req, res) => {
 // Get prescription
 export const getPrescriptionByAppointment = asyncHandler(async (req, res) => {
   const { appointmentId } = req.params;
+  console.log('GET PRESCRIPTION BY ID');
+  console.log(req.params);
 
   const response = await getPrescriptionByAppointmentService(appointmentId);
 
@@ -101,5 +104,15 @@ export const getPatientPrescriptionHistory = asyncHandler(async (req, res) => {
     success: true,
 
     prescriptions: response,
+  });
+});
+export const getPrescriptionByIdController = asyncHandler(async (req, res) => {
+  console.log('params =>', req.params);
+
+  const result = await getPrescriptionByIdService(req.params.prescriptionId);
+
+  return res.status(200).json({
+    success: true,
+    ...result,
   });
 });

@@ -42,6 +42,12 @@ const ROUTES = {
 
   DOCTOR_PRESCRIPTION_DETAILS: '/doctor/prescriptions/:id',
 
+  DOCTOR_PATIENTS: '/doctor/patients',
+
+  DOCTOR_PATIENT_DETAILS: '/doctor/patients/:patientId',
+
+  DOCTOR_PRESCRIPTION_DETAILS: '/doctor/prescriptions/:prescriptionId',
+
   DOCTOR_SETTINGS: '/doctor/settings',
 
   CREATE_PROFILE: '/doctor/create-profile',

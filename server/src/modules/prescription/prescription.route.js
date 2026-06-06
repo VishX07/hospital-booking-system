@@ -13,20 +13,21 @@ import {
   getMyPrescriptions,
   getPatientPrescriptionHistory,
   getPrescriptionByAppointment,
+  getPrescriptionByIdController,
   updatePrescription,
 } from './prescription.controller.js';
 
 const router = Router();
-
 // Create prescription
 router.post('/', protect, authorize(ROLES.DOCTOR), createPrescription);
 
-// Get prescription
+// Specific routes first
 router.get(
   '/appointment/:appointmentId',
   protect,
   getPrescriptionByAppointment,
 );
+
 router.get(
   '/patient/:patientId',
   protect,
@@ -34,17 +35,19 @@ router.get(
   getPatientPrescriptionHistory,
 );
 
-// Patient medical history
-router.get('/my', protect, authorize(ROLES.PATIENT), getMyPrescriptions);
-// Update prescription
-router.patch('/:id', protect, authorize(ROLES.DOCTOR), updatePrescription);
-// Download PDF
+router.get('/my', protect, getMyPrescriptions);
+
 router.get('/:id/download', protect, downloadPrescriptionPdf);
-// Follow-up booking data
+
 router.get(
   '/:id/follow-up-data',
   protect,
   authorize(ROLES.PATIENT),
   getFollowUpData,
 );
+
+router.patch('/:id', protect, authorize(ROLES.DOCTOR), updatePrescription);
+
+// Generic route ALWAYS LAST
+router.get('/:prescriptionId', protect, getPrescriptionByIdController);
 export default router;

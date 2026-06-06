@@ -40,3 +40,5 @@ export const updateProfilePhoto = (formData) =>
       'Content-Type': 'multipart/form-data',
     },
   });
+
+export const googleLogin = (data) => api.post('/auth/google-login', data);

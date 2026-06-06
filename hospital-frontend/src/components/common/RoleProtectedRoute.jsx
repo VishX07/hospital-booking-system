@@ -3,24 +3,15 @@ import { Navigate } from 'react-router-dom';
 import useAuthStore from '../../store/auth.store.js';
 
 import ROUTES from '../../constants/routes.js';
+import DashboardLayout from '../layout/DashboardLayout.jsx';
+import Waiting from '../ui/Waiting.jsx';
 
 const RoleProtectedRoute = ({ children, allowedRole }) => {
-  const { user, isAuthenticated, loading } = useAuthStore();
+  const { user, doctorProfile, isAuthenticated, loading } = useAuthStore();
 
   // Wait auth restore
   if (loading) {
-    return (
-      <div className="min-h-[70vh] bg-[#f5f8fb] p-6">
-        <div className="flex min-h-[50vh] items-center justify-center">
-          <div className="rounded-3xl border border-slate-200 bg-white px-8 py-7 text-center shadow-sm">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
-            <p className="text-sm font-semibold text-slate-600">
-              Loading appointment...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
+    return <Waiting />;
   }
 
   // Not logged in
@@ -28,10 +19,28 @@ const RoleProtectedRoute = ({ children, allowedRole }) => {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
+  // Doctor-specific checks
+  // if (user?.role === 'doctor') {
+  //   if (doctorProfile?.approvalStatus !== 'approved') {
+  //     return <Navigate to={ROUTES.CREATE_PROFILE} replace />;
+  //   }
+  // }
+
   // Wrong role
   if (user?.role !== allowedRole) {
     return <Navigate to={ROUTES.UNAUTHORIZED} replace />;
   }
+  // Doctor-specific checks
+  // if (user?.role === 'doctor') {
+  //   if (doctorProfile?.approvalStatus === 'approved') {
+  //     // return <Navigate to={ROUTES.DOCTOR_DASHBOARD} replace />;
+  //     console.log(doctorProfile);
+  //   }
+  // }
+
+  // if (user?.role === 'doctor' && doctorProfile?.approvalStatus !== 'approved') {
+  //   return <Navigate to={ROUTES.CREATE_PROFILE} />;
+  // }
 
   return children;
 };

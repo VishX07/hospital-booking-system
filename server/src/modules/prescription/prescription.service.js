@@ -8,6 +8,7 @@ import path from 'path';
 
 import { generatePrescriptionPDF } from '../../utils/generatePrescriptionPDF.js';
 import { sendPrescriptionEmail } from '../../services/email.service.js';
+import User from '../../models/User.model.js';
 
 // Create prescription
 export const createPrescriptionService = async (userId, prescriptionData) => {
@@ -113,6 +114,7 @@ export const createPrescriptionService = async (userId, prescriptionData) => {
 // get prescriptions by patient id
 // Get prescription by appointment
 export const getPrescriptionByAppointmentService = async (appointmentId) => {
+  console.log('appointmentId =>', appointmentId);
   // 1. Find prescription
   const prescription = await Prescription.findOne({
     appointmentId,
@@ -141,13 +143,33 @@ export const getPrescriptionByAppointmentService = async (appointmentId) => {
 
 // Get my prescriptions
 export const getMyPrescriptionsService = async (userId) => {
-  // 1. Find prescriptions
-  const prescriptions = await Prescription.find({
-    patientId: userId,
-  })
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  let query = {};
+
+  if (user.role === 'patient') {
+    query.patientId = userId;
+  }
+
+  if (user.role === 'doctor') {
+    const doctor = await Doctor.findOne({
+      userId,
+    });
+
+    if (!doctor) {
+      throw new ApiError(404, 'Doctor profile not found');
+    }
+
+    query.doctorId = doctor._id;
+  }
+
+  const prescriptions = await Prescription.find(query)
     .populate({
       path: 'doctorId',
-
       populate: [
         {
           path: 'userId',
@@ -168,7 +190,6 @@ export const getMyPrescriptionsService = async (userId) => {
       createdAt: -1,
     });
 
-  // 2. Return response
   return {
     prescriptions,
   };
@@ -317,4 +338,21 @@ export const getPatientPrescriptionHistoryService = async (patientId) => {
     });
 
   return prescriptions;
+};
+
+export const getPrescriptionByIdService = async (prescriptionId) => {
+  const prescription = await Prescription.findById(prescriptionId)
+    .populate(
+      'patientId',
+      'fullName email phoneNumber profilePicture gender dateOfBirth',
+    )
+    .populate('doctorId', 'specialization qualification experience');
+
+  if (!prescription) {
+    throw new ApiError(404, 'Prescription not found');
+  }
+
+  return {
+    prescription,
+  };
 };

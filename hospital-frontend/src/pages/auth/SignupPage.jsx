@@ -4,10 +4,12 @@ import toast from 'react-hot-toast';
 
 import { signup } from '../../api/auth.api.js';
 import ROUTES from '../../constants/routes.js';
-
+import { GoogleLogin } from '@react-oauth/google';
+import { googleLogin } from '../../api/auth.api';
+import useAuthStore from '../../store/auth.store.js';
 const SignupPage = () => {
   const navigate = useNavigate();
-
+  const { fetchCurrentUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -47,6 +49,37 @@ const SignupPage = () => {
       setLoading(false);
     }
   };
+
+  // ─── Fixed Google Login Handler ───────────────────────────────────────────
+  // Previously, checking `doctorProfile === null` first caused ALL doctors
+  // (even approved ones) to get redirected to CREATE_PROFILE. Now we check
+  // role first, then approval status — same pattern as handleSubmit.
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      await googleLogin({ credential: credentialResponse.credential });
+      await fetchCurrentUser();
+      const { user: currentUser, doctorProfile } = useAuthStore.getState();
+
+      toast.success('Login successful');
+
+      if (currentUser?.role === 'patient') {
+        navigate(ROUTES.PATIENT_DASHBOARD);
+      } else if (currentUser?.role === 'doctor') {
+        if (doctorProfile?.approvalStatus === 'approved') {
+          navigate(ROUTES.DOCTOR_DASHBOARD);
+        } else {
+          toast.error(
+            'Please complete your doctor profile to access the dashboard',
+          );
+          navigate(ROUTES.CREATE_PROFILE);
+        }
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Google login failed');
+    }
+  };
+
+  const isDoctor = formData.role === 'doctor';
 
   return (
     <main className="min-h-screen bg-[#f5f8fb] text-slate-900">
@@ -261,22 +294,31 @@ const SignupPage = () => {
                     {loading ? 'Creating...' : 'Create account'}
                   </button>
 
-                  <button
-                    type="button"
-                    className="flex h-12 w-full items-center justify-center rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-                  >
-                    <span className="mr-2">
+                  {/* ── Google signup — patients only ── */}
+                  {isDoctor ? (
+                    // Greyed-out hint when doctor role is selected
+                    <div className="flex h-12 w-full items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 text-xs text-gray-400 select-none">
                       <svg
                         fill="currentColor"
                         viewBox="0 0 24 24"
-                        className="h-5 w-5 text-rose-500"
+                        className="mr-2 h-4 w-4 text-gray-300"
                         aria-hidden="true"
                       >
                         <path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 01-5.279-5.28 5.27 5.27 0 015.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 00-8.934 8.934 8.907 8.907 0 008.934 8.934c4.467 0 8.529-3.249 8.529-8.934 0-.528-.081-1.097-.202-1.625z" />
                       </svg>
-                    </span>
-                    Sign up with Google
-                  </button>
+                      Google sign-up is not available for doctors
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <GoogleLogin
+                        onSuccess={handleGoogleLogin}
+                        onError={() => toast.error('Google login failed')}
+                      />
+                      <p className="text-xs text-gray-400">
+                        Patients &amp; doctors can sign in with Google
+                      </p>
+                    </div>
+                  )}
                 </div>
               </form>
             </div>

@@ -25,21 +25,37 @@ export const createReview = asyncHandler(async (req, res) => {
   });
 });
 
-// Get doctor reviews
+// // Get doctor reviews
+// export const getDoctorReviews = asyncHandler(async (req, res) => {
+//   // 1. Get doctor id
+//   const { doctorId } = req.params;
+
+//   // 2. Get reviews
+// const response = await getDoctorReviewsService(doctorId);
+
+//   // 3. Return response
+//   res.status(200).json({
+//     success: true,
+
+//     totalReviews: response.totalReviews,
+
+//     reviews: response.reviews,
+//   });
+// });
+
 export const getDoctorReviews = asyncHandler(async (req, res) => {
-  // 1. Get doctor id
   const { doctorId } = req.params;
 
-  // 2. Get reviews
   const response = await getDoctorReviewsService(doctorId);
 
-  // 3. Return response
   res.status(200).json({
     success: true,
 
-    totalReviews: response.totalReviews,
-
     reviews: response.reviews,
+
+    averageRating: response.averageRating,
+
+    totalReviews: response.totalReviews,
   });
 });
 

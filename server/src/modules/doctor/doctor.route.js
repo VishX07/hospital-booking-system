@@ -1,59 +1,3 @@
-// import { Router } from 'express';
-
-// import {
-//   createDoctorProfile,
-//   getAllDoctors,
-//   getDoctorById,
-//   updateDoctorApproval,
-//   updateDoctorProfile,
-// } from './doctor.controller.js';
-
-// import validate from '../../middleware/validate.middleware.js';
-
-// import protect from '../../middleware/auth.middleware.js';
-
-// import authorize from '../../middleware/role.middleware.js';
-
-// import ROLES from '../../constants/roles.js';
-
-// import upload from '../../middleware/upload.middleware.js';
-
-// import {
-//   createDoctorProfileSchema,
-//   updateDoctorApprovalSchema,
-//   updateDoctorProfileSchema,
-// } from './doctor.validation.js';
-
-// const router = Router();
-
-// router.post(
-//   '/profile',
-//   protect,
-//   authorize(ROLES.DOCTOR),
-//   upload.single('licenseDocument'),
-//   validate(createDoctorProfileSchema),
-//   createDoctorProfile,
-// );
-// router.patch(
-//   '/:id/approval',
-//   validate(updateDoctorApprovalSchema),
-//   protect,
-//   authorize(ROLES.ADMIN),
-//   updateDoctorApproval,
-// );
-
-// router.get('/', getAllDoctors);
-// router.patch(
-//   '/profile',
-//   validate(updateDoctorProfileSchema),
-//   protect,
-//   authorize(ROLES.DOCTOR),
-//   updateDoctorProfile,
-// );
-
-// router.get('/:id', getDoctorById);
-// export default router;
-
 import { Router } from 'express';
 
 import {
@@ -61,6 +5,8 @@ import {
   getAllDoctors,
   getDoctorById,
   getDoctorSuggestions,
+  getMyPatientsController,
+  getPatientDetailsController,
   getPendingDoctors,
   updateDoctorApproval,
   updateDoctorProfile,
@@ -81,6 +27,19 @@ import {
 
 const router = Router();
 router.get('/suggestions', getDoctorSuggestions);
+router.get(
+  '/my-patients',
+  protect,
+  authorize(ROLES.DOCTOR),
+  getMyPatientsController,
+);
+router.get(
+  '/patients/:patientId',
+  protect,
+  authorize(ROLES.DOCTOR),
+  getPatientDetailsController,
+);
+
 // Create doctor profile
 router.post(
   '/profile',

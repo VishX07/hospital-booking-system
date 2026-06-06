@@ -4,6 +4,8 @@ import {
   getAllDoctorsService,
   getDoctorByIdService,
   getDoctorSuggestionsService,
+  getMyPatientsService,
+  getPatientDetailsService,
   getPendingDoctorsService,
   updateDoctorApprovalService,
   updateDoctorProfileService,
@@ -129,5 +131,26 @@ export const getPendingDoctors = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     doctors: response.doctors,
+  });
+});
+
+export const getMyPatientsController = asyncHandler(async (req, res) => {
+  const result = await getMyPatientsService(req.user._id);
+
+  return res.status(200).json({
+    success: true,
+    ...result,
+  });
+});
+
+export const getPatientDetailsController = asyncHandler(async (req, res) => {
+  const result = await getPatientDetailsService(
+    req.user._id,
+    req.params.patientId,
+  );
+
+  return res.status(200).json({
+    success: true,
+    ...result,
   });
 });

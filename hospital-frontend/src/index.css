@@ -1,10 +1,152 @@
 @import "tailwindcss";
-  
+
+/* ══════════════════════════════════════════════════════════════
+   FONTS — loaded via index.html <link> tag (add there too)
+══════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE STRETCH — elastic entrance on refresh/navigate
+══════════════════════════════════════════════════════════════ */
+#root {
+  animation: page-stretch 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes page-stretch {
+  0%   { opacity: 0; transform: scaleY(0.97) translateY(-6px); }
+  65%  { opacity: 1; transform: scaleY(1.008); }
+  100% { opacity: 1; transform: scaleY(1) translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SCROLL STRETCH — rubber band at top and bottom of page
+══════════════════════════════════════════════════════════════ */
+html {
+  scroll-behavior: smooth;
+  overscroll-behavior: none;
+}
+
 body {
-  background: #f8fafc;
-  color: #111827;
-  font-family:
-    Inter,
-    system-ui,
-    sans-serif;
+  overscroll-behavior-y: contain;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SCROLLBAR — Aurora neon gradient
+══════════════════════════════════════════════════════════════ */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #2563eb transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-track-piece {
+  background: rgba(203, 213, 225, 0.15);
+  border-radius: 999px;
+  margin: 4px 0;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    #38bdf8 0%,
+    #2563eb 35%,
+    #6366f1 65%,
+    #a855f7 100%
+  );
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  animation: thumb-pulse 3s ease-in-out infinite;
+}
+
+@keyframes thumb-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 6px  rgba(56,  189, 248, 0.7),
+      0 0 14px rgba(37,  99,  235, 0.45),
+      0 0 24px rgba(168, 85,  247, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 10px rgba(56,  189, 248, 1),
+      0 0 22px rgba(37,  99,  235, 0.8),
+      0 0 40px rgba(168, 85,  247, 0.5),
+      0 0 58px rgba(99,  102, 241, 0.2);
+  }
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    #7dd3fc 0%,
+    #3b82f6 35%,
+    #818cf8 65%,
+    #c084fc 100%
+  );
+  background-clip: padding-box;
+  border: 1.5px solid transparent;
+  box-shadow:
+    0 0 14px rgba(56,  189, 248, 1),
+    0 0 28px rgba(37,  99,  235, 0.9),
+    0 0 50px rgba(168, 85,  247, 0.55),
+    0 0 75px rgba(99,  102, 241, 0.25);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(
+    180deg,
+    #0ea5e9 0%,
+    #1d4ed8 45%,
+    #4f46e5 100%
+  );
+  background-clip: padding-box;
+  border: 1.5px solid transparent;
+  box-shadow:
+    0 0 16px rgba(14,  165, 233, 1),
+    0 0 32px rgba(79,  70,  229, 0.8),
+    inset 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TEXT SELECTION — safe, only changes highlight color
+══════════════════════════════════════════════════════════════ */
+::selection {
+  background: rgba(37, 99, 235, 0.18);
+  color: inherit;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TAP HIGHLIGHT — removes grey flash on mobile tap
+══════════════════════════════════════════════════════════════ */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BUTTON PRESS — physical depress feel, safe global
+══════════════════════════════════════════════════════════════ */
+button:active:not(:disabled) {
+  transform: scale(0.97);
+  transition: transform 0.08s ease;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SCROLLBAR HIDE UTILITY — used in horizontal scroll areas
+══════════════════════════════════════════════════════════════ */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

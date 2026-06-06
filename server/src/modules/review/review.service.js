@@ -76,8 +76,24 @@ export const createReviewService = async (userId, reviewData) => {
 };
 
 // Get doctor reviews
+// export const getDoctorReviewsService = async (doctorId) => {
+//   // 1. Get reviews
+//   const reviews = await Review.find({
+//     doctorId,
+//   })
+//     .populate('patientId', 'fullName profilePicture')
+//     .sort({
+//       createdAt: -1,
+//     });
+
+//   // 2. Return response
+//   return {
+//     reviews,
+//     totalReviews: reviews.length,
+//   };
+// };
+
 export const getDoctorReviewsService = async (doctorId) => {
-  // 1. Get reviews
   const reviews = await Review.find({
     doctorId,
   })
@@ -86,10 +102,17 @@ export const getDoctorReviewsService = async (doctorId) => {
       createdAt: -1,
     });
 
-  // 2. Return response
+  const totalReviews = reviews.length;
+
+  const averageRating =
+    totalReviews > 0
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews
+      : 0;
+
   return {
     reviews,
-    totalReviews: reviews.length,
+    averageRating,
+    totalReviews,
   };
 };
 

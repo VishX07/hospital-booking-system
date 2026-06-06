@@ -148,6 +148,35 @@ export const getPatientDashboardService = async (userId) => {
     },
   });
 
+  //upcioming appointments list
+  const upcomingAppointmentList = await Appointment.find({
+    patientId: userId,
+
+    appointmentDate: {
+      $gte: today,
+    },
+
+    status: {
+      $nin: ['cancelled', 'rejected', 'completed'],
+    },
+  })
+    .populate({
+      path: 'doctorId',
+      populate: [
+        {
+          path: 'userId',
+          select: 'fullName profilePicture',
+        },
+        {
+          path: 'department',
+          select: 'name',
+        },
+      ],
+    })
+    .sort({
+      appointmentDate: 1,
+    })
+    .limit(5);
   // 6. Completed appointments
   const completedAppointments = await Appointment.countDocuments({
     patientId: userId,
@@ -208,6 +237,7 @@ export const getPatientDashboardService = async (userId) => {
       pendingAppointments,
 
       recentAppointments,
+      upcomingAppointmentList,
     },
   };
 };

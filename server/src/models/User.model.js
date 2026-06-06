@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { maxLength } from 'zod';
 
 const userSchema = new mongoose.Schema(
   {
@@ -21,10 +22,12 @@ const userSchema = new mongoose.Schema(
 
     phoneNumber: {
       type: String,
-      required: [true, 'Phone number is required'],
-      unique: true,
+      // required: [true, 'Phone number is required'],
+      default: null,
+      // unique: true,
       trim: true,
       minlength: [10, 'Phone number must be at least 10 characters'],
+      maxLength: [10, 'phone number should be 10 characters'],
     },
     gender: {
       type: String,

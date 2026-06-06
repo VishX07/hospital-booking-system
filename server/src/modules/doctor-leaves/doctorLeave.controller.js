@@ -14,9 +14,8 @@ export const createDoctorLeave = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-
     message: response.message,
-
+    appointmentCount: response.appointmentCount,
     leave: response.leave,
   });
 });

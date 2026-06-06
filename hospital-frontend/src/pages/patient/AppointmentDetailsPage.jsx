@@ -5,6 +5,9 @@ import toast from 'react-hot-toast';
 import {
   getAppointmentById,
   getPrescriptionsByAppointmentId,
+  rescheduleAppointment,
+  getAvailableSlots,
+  cancelAppointment,
 } from '../../api/appointment.api.js';
 import DashboardLayout from '../../components/layout/DashboardLayout.jsx';
 
@@ -281,6 +284,26 @@ const ApptIllustration = () => (
   </svg>
 );
 
+const Modal = ({ open, onClose, title, subtitle, children }) => {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl">
+        <div className="mb-5">
+          <h2 className="text-xl font-bold text-slate-900">{title}</h2>
+
+          {subtitle && (
+            <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+          )}
+        </div>
+
+        {children}
+      </div>
+    </div>
+  );
+};
+
 /* ─── Main Component ──────────────────────────────────────────────────────── */
 const AppointmentDetailsPage = () => {
   const { id } = useParams();
@@ -289,6 +312,97 @@ const AppointmentDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [prescription, setPrescription] = useState(null);
   const [prescriptionLoading, setPrescriptionLoading] = useState(true);
+
+  //new states
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+
+  const [appointmentDate, setAppointmentDate] = useState('');
+
+  const [selectedSlot, setSelectedSlot] = useState('');
+
+  const [availableSlots, setAvailableSlots] = useState([]);
+
+  const [rescheduleLoading, setRescheduleLoading] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+
+  const [cancelReason, setCancelReason] = useState('');
+
+  const [cancelLoading, setCancelLoading] = useState(false);
+
+  const fetchSlots = async (date) => {
+    try {
+      setAppointmentDate(date);
+
+      setSelectedSlot('');
+
+      const response = await getAvailableSlots(appointment.doctorId._id, date);
+
+      setAvailableSlots(response.data.slots || []);
+      toat.success(response.data.message || 'Available slots fetched');
+    } catch (error) {
+      setAvailableSlots([]);
+
+      toast.error(error?.response?.data?.message || 'Failed to fetch slots');
+    }
+  };
+
+  const handleReschedule = async () => {
+    if (!appointmentDate) {
+      toast.error('Select date');
+
+      return;
+    }
+
+    if (!selectedSlot) {
+      toast.error('Select slot');
+
+      return;
+    }
+
+    try {
+      setRescheduleLoading(true);
+
+      await rescheduleAppointment(appointment._id, {
+        appointmentDate,
+        timeSlot: selectedSlot,
+      });
+
+      toast.success('Reschedule request sent');
+
+      setShowRescheduleModal(false);
+
+      fetchAppointment();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to reschedule');
+    } finally {
+      setRescheduleLoading(false);
+    }
+  };
+  const handleCancel = async () => {
+    if (!cancelReason.trim()) {
+      toast.error('Please enter a reason');
+
+      return;
+    }
+
+    try {
+      setCancelLoading(true);
+
+      await cancelAppointment(appointment._id, {
+        cancelReason,
+      });
+
+      toast.success('Appointment cancelled');
+
+      setShowCancelModal(false);
+
+      fetchAppointment();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to cancel');
+    } finally {
+      setCancelLoading(false);
+    }
+  };
 
   const fetchAppointment = async () => {
     try {
@@ -322,14 +436,16 @@ const AppointmentDetailsPage = () => {
   /* Loading */
   if (loading)
     return (
-      <div className="min-h-[70vh] bg-[#f0f5fb] p-6 flex items-center justify-center">
-        <div className="rounded-3xl border border-slate-200 bg-white px-10 py-9 text-center shadow-md">
-          <div className="mx-auto mb-4 h-11 w-11 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
-          <p className="text-sm font-semibold text-slate-500 tracking-wide">
-            Loading appointment…
-          </p>
+      <DashboardLayout>
+        <div className="min-h-[70vh] bg-[#f0f5fb] p-6 flex items-center justify-center">
+          <div className="rounded-3xl border border-slate-200 bg-white px-10 py-9 text-center shadow-md">
+            <div className="mx-auto mb-4 h-11 w-11 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
+            <p className="text-sm font-semibold text-slate-500 tracking-wide">
+              Loading appointment…
+            </p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
 
   /* Not found */
@@ -389,7 +505,8 @@ const AppointmentDetailsPage = () => {
             <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white opacity-5" />
             <div className="pointer-events-none absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-indigo-300 opacity-10 blur-3xl" />
 
-            <div className="relative flex flex-col gap-8 px-8 py-10 md:flex-row md:items-center md:justify-between md:px-10">
+            <div className="relative flex flex-col gap-6 px-5 py-8 sm:px-8 sm:py-10 md:flex-row md:items-center md:justify-between md:px-10">
+              {' '}
               {/* Left */}
               <div className="flex-1">
                 {/* Breadcrumb pill */}
@@ -467,7 +584,8 @@ const AppointmentDetailsPage = () => {
                 </div>
 
                 {/* Date / time / type pills */}
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="mt-4 flex flex-wrap gap-2 sm:gap-3">
+                  {' '}
                   {[
                     { label: 'Date', val: apptDate },
                     { label: 'Time', val: appointment.timeSlot },
@@ -486,9 +604,8 @@ const AppointmentDetailsPage = () => {
                   ))}
                 </div>
               </div>
-
               {/* Illustration */}
-              <div className="mx-auto w-56 flex-shrink-0 md:mx-0 md:w-64 lg:w-72">
+              <div className="hidden md:block md:w-56 lg:w-72 flex-shrink-0">
                 <ApptIllustration />
               </div>
             </div>
@@ -520,11 +637,11 @@ const AppointmentDetailsPage = () => {
                   }
                 />
                 <div className="flex flex-col gap-5 sm:flex-row">
-                  <div className="relative flex-shrink-0">
+                  <div className="relative flex-shrink-0 mx-auto sm:mx-0">
                     <img
                       src={appointment?.doctorId?.userId?.profilePicture}
                       alt="Doctor"
-                      className="h-28 w-28 rounded-3xl object-cover ring-2 ring-slate-100"
+                      className="h-24 w-24 sm:h-28 sm:w-28 rounded-3xl object-cover ring-2 ring-slate-100"
                     />
                     <span className="absolute -bottom-1.5 -right-1.5 rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white shadow">
                       MD
@@ -587,7 +704,7 @@ const AppointmentDetailsPage = () => {
                   <img
                     src={appointment?.patientId?.profilePicture}
                     alt="Patient"
-                    className="h-24 w-24 flex-shrink-0 rounded-3xl object-cover ring-2 ring-slate-100"
+                    className="h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0 rounded-3xl object-cover ring-2 ring-slate-100 mx-auto sm:mx-0"
                   />
                   <div className="grid flex-1 gap-3 sm:grid-cols-2">
                     <Field
@@ -846,6 +963,54 @@ const AppointmentDetailsPage = () => {
                 </Card>
               )}
 
+              {/*new model */}
+              <Card delay="d3">
+                <SectionHead
+                  title="Appointment Actions"
+                  sub="Manage your appointment"
+                  icon={
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 12l2 2 4-4"
+                      />
+                    </svg>
+                  }
+                />
+
+                {appointment.status === 'pending' ||
+                appointment.status === 'confirmed' ? (
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setShowRescheduleModal(true)}
+                      className="w-full rounded-2xl border border-blue-200 bg-blue-50 py-3 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
+                    >
+                      Reschedule Appointment
+                    </button>
+
+                    <button
+                      onClick={() => setShowCancelModal(true)}
+                      className="w-full rounded-2xl border border-red-200 bg-red-50 py-3 text-sm font-bold text-red-700 transition hover:bg-red-100"
+                    >
+                      Cancel Appointment
+                    </button>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">
+                    <p className="text-sm font-medium text-slate-500">
+                      No actions available for this appointment.
+                    </p>
+                  </div>
+                )}
+              </Card>
+
               {/* Prescription */}
               <Card delay="d4">
                 <SectionHead
@@ -969,6 +1134,100 @@ const AppointmentDetailsPage = () => {
           </div>
         </div>
       </div>
+      <Modal
+        open={showRescheduleModal}
+        onClose={() => setShowRescheduleModal(false)}
+        title="Reschedule Appointment"
+        subtitle="Choose a new date and slot"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Select Date
+            </label>
+
+            <input
+              type="date"
+              value={appointmentDate}
+              onChange={(e) => fetchSlots(e.target.value)}
+              className="w-full rounded-xl border p-3"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Available Slots
+            </label>
+
+            <div className="grid grid-cols-3 gap-2">
+              {availableSlots.map((slot) => (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => setSelectedSlot(slot)}
+                  className={`rounded-xl border px-3 py-2 text-sm ${
+                    selectedSlot === slot
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white'
+                  }`}
+                >
+                  {slot}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+            {' '}
+            <button
+              onClick={() => setShowRescheduleModal(false)}
+              className="rounded-xl border px-4 py-2"
+            >
+              Close
+            </button>
+            <button
+              onClick={handleReschedule}
+              disabled={rescheduleLoading}
+              className="rounded-xl bg-blue-600 px-4 py-2 text-white"
+            >
+              {rescheduleLoading ? 'Sending...' : 'Send Request'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+      <Modal
+        open={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        title="Cancel Appointment"
+        subtitle="Please provide a reason"
+      >
+        <div className="space-y-4">
+          <textarea
+            rows={4}
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            placeholder="Reason for cancellation..."
+            className="w-full rounded-xl border border-slate-200 p-3"
+          />
+
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3">
+            {' '}
+            <button
+              onClick={() => setShowCancelModal(false)}
+              className="rounded-xl border px-4 py-2"
+            >
+              Close
+            </button>
+            <button
+              onClick={handleCancel}
+              disabled={cancelLoading}
+              className="rounded-xl bg-red-600 px-4 py-2 text-white"
+            >
+              {cancelLoading ? 'Cancelling...' : 'Confirm Cancel'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </DashboardLayout>
   );
 };

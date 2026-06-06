@@ -4,7 +4,7 @@ import { getCurrentUser, logout } from '../api/auth.api.js';
 
 const useAuthStore = create((set) => ({
   user: null,
-
+  doctorProfile: null,
   isAuthenticated: false,
 
   loading: true,
@@ -23,7 +23,7 @@ const useAuthStore = create((set) => ({
 
       set({
         user: response.data.user,
-
+        doctorProfile: response.data.doctorProfile || null,
         isAuthenticated: true,
 
         loading: false,

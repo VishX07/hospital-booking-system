@@ -4,6 +4,7 @@ import Department from '../../models/Department.model.js';
 import ApiError from '../../utils/ApiError.js';
 import uploadToCloudinary from '../../utils/uploadToCloudinary.js';
 import { createNotification } from '../notification/notification.service.js';
+import Appointment from '../../models/Appointment.model.js';
 export const createDoctorProfileService = async (userId, doctorData, file) => {
   // 1. Check user exists
   const user = await User.findById(userId);
@@ -419,5 +420,93 @@ export const getPendingDoctorsService = async () => {
   // 2. Return response
   return {
     doctors,
+  };
+};
+
+export const getMyPatientsService = async (userId) => {
+  // 1. Find doctor
+  const doctor = await Doctor.findOne({ userId });
+
+  if (!doctor) {
+    throw new ApiError(404, 'Doctor profile not found');
+  }
+
+  // 2. Get all appointments
+  const appointments = await Appointment.find({
+    doctorId: doctor._id,
+  })
+    .populate(
+      'patientId',
+      'fullName email phoneNumber profilePicture gender dateOfBirth',
+    )
+    .sort({
+      createdAt: -1,
+    });
+
+  // 3. Remove duplicates
+  const patientMap = new Map();
+
+  appointments.forEach((appointment) => {
+    const patient = appointment.patientId;
+
+    if (!patient) return;
+
+    const key = patient._id.toString();
+
+    if (!patientMap.has(key)) {
+      patientMap.set(key, {
+        ...patient.toObject(),
+        totalAppointments: 1,
+        lastVisit: appointment.appointmentDate,
+      });
+    } else {
+      const existing = patientMap.get(key);
+
+      existing.totalAppointments += 1;
+
+      if (
+        new Date(appointment.appointmentDate) > new Date(existing.lastVisit)
+      ) {
+        existing.lastVisit = appointment.appointmentDate;
+      }
+    }
+  });
+
+  // 4. Return patients
+  return {
+    patients: Array.from(patientMap.values()),
+  };
+};
+
+export const getPatientDetailsService = async (userId, patientId) => {
+  const doctor = await Doctor.findOne({
+    userId,
+  });
+
+  if (!doctor) {
+    throw new ApiError(404, 'Doctor profile not found');
+  }
+
+  const patient = await User.findById(patientId).select(
+    'fullName email phoneNumber profilePicture gender dateOfBirth',
+  );
+
+  if (!patient) {
+    throw new ApiError(404, 'Patient not found');
+  }
+
+  const appointments = await Appointment.find({
+    doctorId: doctor._id,
+    patientId,
+  }).sort({
+    appointmentDate: -1,
+  });
+
+  return {
+    patient,
+    stats: {
+      totalAppointments: appointments.length,
+      lastVisit: appointments[0]?.appointmentDate || null,
+    },
   };
 };

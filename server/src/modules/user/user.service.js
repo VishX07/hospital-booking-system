@@ -32,7 +32,7 @@ export const updateProfilePhotoService = async (userId, file) => {
 };
 
 export const updateProfileService = async (userId, updateData) => {
-  const allowedFields = ['fullName', 'phone', 'gender', 'dateOfBirth'];
+  const allowedFields = ['fullName', 'phoneNumber', 'gender', 'dateOfBirth'];
 
   const updates = {};
 
@@ -40,6 +40,19 @@ export const updateProfileService = async (userId, updateData) => {
   for (const key of allowedFields) {
     if (updateData[key] !== undefined) {
       updates[key] = updateData[key];
+    }
+  }
+  if (updateData.phoneNumber) {
+    const existingUser = await User.findOne({
+      phoneNumber: updateData.phoneNumber,
+
+      _id: {
+        $ne: userId,
+      },
+    });
+
+    if (existingUser) {
+      throw new ApiError(409, 'Phone number already exists');
     }
   }
 

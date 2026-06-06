@@ -1,6 +1,7 @@
 import Appointment from '../../models/Appointment.model.js';
 import Doctor from '../../models/Doctor.model.js';
 import DoctorLeave from '../../models/DoctorLeave.model.js';
+import { sendAppointmentCancelledEmail } from '../../services/email.service.js';
 import ApiError from '../../utils/ApiError.js';
 import { createNotification } from '../notification/notification.service.js';
 // Create leave
@@ -53,7 +54,20 @@ export const createDoctorLeaveService = async (userId, leaveData) => {
 
       $lte: new Date(endDate),
     },
-  });
+  })
+    .populate({
+      path: 'patientId',
+      select: 'fullName email',
+    })
+    .populate({
+      path: 'doctorId',
+      populate: {
+        path: 'userId',
+        select: 'fullName',
+      },
+    });
+
+  console.log('Conflicting Appointments:', conflictingAppointments);
 
   // 7. Return warning if conflicts found
   if (conflictingAppointments.length > 0 && !forceCreate) {
@@ -81,12 +95,27 @@ export const createDoctorLeaveService = async (userId, leaveData) => {
   for (const appointment of conflictingAppointments) {
     // Cancel appointment
     appointment.status = 'cancelled';
-
     appointment.cancelledBy = 'doctor';
-
     appointment.cancelReason = `Doctor unavailable due to leave: ${reason}`;
 
+    const patient = appointment.patientId;
+    const doctorUser = appointment.doctorId.userId;
+
+    console.log('Patient:', patient);
+    console.log('Doctor:', doctorUser);
+
     await appointment.save();
+
+    //email for cancelled appointment
+    await sendAppointmentCancelledEmail({
+      email: appointment.patientId.email,
+      cancelledBy: 'doctor',
+      receiverName: appointment.patientId.fullName,
+      cancellerName: doctor.fullName,
+      appointmentDate: appointment.appointmentDate,
+      timeSlot: appointment.timeSlot,
+      cancelReason: `Doctor unavailable due to leave: ${reason}`,
+    });
 
     // Send notification
     await createNotification({
@@ -114,48 +143,67 @@ export const createDoctorLeaveService = async (userId, leaveData) => {
     });
   }
 
-  // 9. Cancel affected appointments
-  for (const appointment of conflictingAppointments) {
-    // Cancel appointment
-    appointment.status = 'cancelled';
+  //   for (const appointment of conflictingAppointments) {
+  //     appointment.status = 'cancelled';
 
-    appointment.cancelledBy = 'doctor';
+  //     appointment.cancelledBy = 'doctor';
 
-    appointment.cancelReason = `Doctor unavailable due to leave: ${reason}`;
+  //     appointment.cancelReason = `Doctor unavailable due to leave: ${reason}`;
 
-    await appointment.save();
+  //     await appointment.save();
 
-    // Send notification
-    await createNotification({
-      userId: appointment.patientId,
+  //     const patient = appointment.patientId.userId;
+  //     const doctorUser = appointment.doctorId.userId;
 
-      title: 'Appointment Cancelled',
+  //     await sendAppointmentCancelledEmail({
+  //       email: patient.email,
 
-      message: `Your appointment on
-${appointment.appointmentDate.toLocaleDateString()}
-at ${appointment.timeSlot}
-was cancelled because the doctor is on leave.
+  //       receiverName: patient.fullName,
 
-Reason:
-${reason}
+  //       cancelledBy: 'doctor',
 
-Please book another slot.`,
+  //       cancellerName: doctorUser.fullName,
 
-      type: 'appointment',
+  //       appointmentDate: appointment.appointmentDate,
 
-      metadata: {
-        appointmentId: appointment._id,
+  //       timeSlot: appointment.timeSlot,
 
-        doctorId: doctor._id,
-      },
-    });
-  }
+  //       cancelReason: `Doctor unavailable due to leave: ${reason}`,
+  //     });
+
+  //     await createNotification({
+  //       userId: appointment.patientId._id,
+
+  //       title: 'Appointment Cancelled',
+
+  //       message: `Your appointment on
+  // ${appointment.appointmentDate.toLocaleDateString()}
+  // at ${appointment.timeSlot}
+  // was cancelled because the doctor is on leave.
+
+  // Reason:
+  // ${reason}
+
+  // Please book another slot.`,
+
+  //       type: 'appointment',
+
+  //       metadata: {
+  //         appointmentId: appointment._id,
+
+  //         doctorId: doctor._id,
+  //       },
+  //     });
+  //   }
 
   // 9. Return response
   return {
-    message: 'Leave added successfully.',
+    success: true,
+    requiresConfirmation: true,
 
-    leave,
+    appointmentCount: conflictingAppointments.length,
+
+    message: 'Leave created successfully',
   };
 };
 

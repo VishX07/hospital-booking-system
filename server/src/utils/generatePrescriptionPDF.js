@@ -167,9 +167,9 @@ const drawInfoCard = (doc, prescription, startY) => {
       prescription.patientId.gender.slice(1)
     : 'N/A';
   doc
-    .font(F.REG)
+    .font(FONT.regular)
     .fontSize(10)
-    .fillColor(C.MUTED)
+    .fillColor(COLORS.muted)
     .text(`${gender} • ${age} Years`, lx, vy + 26);
 
   labelValue(

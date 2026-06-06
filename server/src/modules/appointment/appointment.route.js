@@ -27,13 +27,13 @@ import {
 
 const router = Router();
 
-router.post(
-  '/',
-  validate(bookAppointmentSchema),
-  protect,
-  authorize(ROLES.PATIENT),
-  bookAppointment,
-);
+// router.post(
+//   '/',
+//   validate(bookAppointmentSchema),
+//   protect,
+//   authorize(ROLES.PATIENT),
+//   bookAppointment,
+// );
 
 router.get('/my', protect, authorize(ROLES.PATIENT), getMyAppointments);
 router.get('/doctor', protect, authorize(ROLES.DOCTOR), getDoctorAppointments);

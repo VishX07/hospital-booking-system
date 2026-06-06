@@ -3,13 +3,15 @@ import cors from 'cors';
 import { sendOTPEmail } from './services/email.service.js';
 import cookieParser from 'cookie-parser';
 import errorHandler from './middleware/error.middleware.js';
+
 const app = express();
 
 app.use(
   cors({
     origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
 app.use(express.json());
@@ -39,7 +41,7 @@ import reviewRoutes from './modules/review/review.routes.js';
 import doctorLeaveRoutes from './modules/doctor-leaves/doctorLeave.route.js';
 import prescriptionRoutes from './modules/prescription/prescription.route.js';
 import statsRoutes from './modules/stats/stats.route.js';
-
+import paymentRoutes from './modules/payment/payment.route.js';
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/departments', departmentRoutes);
 app.use('/api/v1/doctors', doctorRoutes);
@@ -53,6 +55,7 @@ app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/doctor-leaves', doctorLeaveRoutes);
 app.use('/api/v1/prescriptions', prescriptionRoutes);
 app.use('/api/v1/stats', statsRoutes);
+app.use('/api/v1/payments', paymentRoutes);
 
 app.use(errorHandler);
 export default app;

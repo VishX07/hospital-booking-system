@@ -4,10 +4,17 @@ import { useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/layout/DashboardLayout.jsx';
 import { getDoctorById } from '../../api/doctor.api.js';
 import { getDoctorSchedules } from '../../api/schedule.api.js';
-import { bookAppointment } from '../../api/appointment.api.js';
+import {
+  bookAppointment,
+  getAvailableSlots,
+} from '../../api/appointment.api.js';
 import { getDoctorReviews } from '../../api/review.api.js';
 import toast from 'react-hot-toast';
-
+import {
+  createPaymentOrder,
+  verifyPayment,
+  bookOfflineAppointment,
+} from '../../api/payment.api.js';
 /* ─── Styles ──────────────────────────────────────────────────────────────── */
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap');
@@ -578,12 +585,18 @@ const DoctorDetailsPage = () => {
   const [reviews, setReviews] = useState([]);
   const [avgRating, setAvgRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
+  const [leaveMessage, setLeaveMessage] = useState('');
+  const [paymentMode, setPaymentMode] = useState('online'); // 'online' | 'offline'
 
   useEffect(() => {
     fetchDoctor();
     fetchSchedules();
     fetchReviews();
   }, [id]);
+
+  useEffect(() => {
+    setPaymentMode('online');
+  }, [consType]);
 
   const fetchDoctor = async () => {
     try {
@@ -614,54 +627,118 @@ const DoctorDetailsPage = () => {
     }
   };
 
-  const generateSlots = (date) => {
-    setSelectedDate(date);
-    setSelectedSlot('');
-    const day = new Date(date)
-      .toLocaleDateString('en-US', { weekday: 'long' })
-      .toLowerCase();
-    const sch = schedules.find((s) => s.dayOfWeek === day);
-    if (!sch) {
+  const generateSlots = async (date) => {
+    try {
+      setSelectedDate(date);
+
+      setSelectedSlot('');
+
+      const response = await getAvailableSlots(id, date);
+      setLeaveMessage(response.data.message);
+      setSlots(response.data.slots || []);
+    } catch (error) {
       setSlots([]);
-      return;
+
+      toast.error(error?.response?.data?.message || 'Failed to fetch slots');
     }
-    const slots = [];
-    let cur = sch.startTime;
-    while (cur < sch.endTime) {
-      if (cur >= sch.breakStart && cur < sch.breakEnd) {
-        cur = sch.breakEnd;
-        continue;
-      }
-      slots.push(cur);
-      const [h, m] = cur.split(':').map(Number);
-      const nx = new Date();
-      nx.setHours(h);
-      nx.setMinutes(m + sch.slotDuration);
-      cur = `${String(nx.getHours()).padStart(2, '0')}:${String(nx.getMinutes()).padStart(2, '0')}`;
-    }
-    setSlots(slots);
   };
+
+  // const handleBooking = async () => {
+  //   if (!selectedDate) return toast.error('Select a date');
+  //   if (!selectedSlot) return toast.error('Select a time slot');
+  //   if (!reason) return toast.error('Enter reason for visit');
+  //   try {
+  //     setBookLoading(true);
+  //     await bookAppointment({
+  //       doctorId: id,
+  //       appointmentDate: selectedDate,
+  //       timeSlot: selectedSlot,
+  //       consultationType: consType,
+  //       reasonForVisit: reason,
+  //     });
+  //     toast.success('Appointment booked successfully!');
+  //     setSelectedSlot('');
+  //     setReason('');
+  //     setSelectedDate('');
+  //     setSlots([]);
+  //   } catch (e) {
+  //     toast.error(e?.response?.data?.message || 'Booking failed');
+  //   } finally {
+  //     setBookLoading(false);
+  //   }
+  // };
 
   const handleBooking = async () => {
     if (!selectedDate) return toast.error('Select a date');
     if (!selectedSlot) return toast.error('Select a time slot');
     if (!reason) return toast.error('Enter reason for visit');
+
+    const appointmentData = {
+      doctorId: id,
+      appointmentDate: selectedDate,
+      timeSlot: selectedSlot,
+      consultationType: consType,
+      reasonForVisit: reason,
+    };
+
     try {
       setBookLoading(true);
-      await bookAppointment({
-        doctorId: id,
-        appointmentDate: selectedDate,
-        timeSlot: selectedSlot,
-        consultationType: consType,
-        reasonForVisit: reason,
-      });
-      toast.success('Appointment booked successfully!');
-      setSelectedSlot('');
-      setReason('');
-      setSelectedDate('');
-      setSlots([]);
-    } catch (e) {
-      toast.error(e?.response?.data?.message || 'Booking failed');
+
+      /* ── Path A: Pay at Clinic ── */
+      if (consType === 'offline' && paymentMode === 'clinic') {
+        await bookOfflineAppointment(appointmentData);
+        toast.success('Appointment booked! Please pay at the clinic.');
+        setSelectedSlot('');
+        setReason('');
+        setSelectedDate('');
+        setSlots([]);
+        return;
+      }
+
+      /* ── Path B: Online Payment via Razorpay ── */
+      const { data } = await createPaymentOrder(id);
+
+      const options = {
+        key: data.key,
+        amount: data.order.amount,
+        currency: data.order.currency,
+        order_id: data.order.id,
+        name: 'AlphaCare',
+        description: `Consultation with Dr. ${doctor?.userId?.fullName}`,
+        theme: { color: '#0d9488' },
+
+        handler: async (response) => {
+          try {
+            await verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              appointmentData,
+            });
+            toast.success('Appointment booked & payment successful!');
+            setSelectedSlot('');
+            setReason('');
+            setSelectedDate('');
+            setSlots([]);
+          } catch (err) {
+            toast.error(
+              err?.response?.data?.message || 'Booking failed after payment',
+            );
+          }
+        },
+
+        modal: {
+          ondismiss: () => {
+            toast.error('Payment cancelled');
+            setBookLoading(false);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to initiate payment');
     } finally {
       setBookLoading(false);
     }
@@ -970,7 +1047,10 @@ const DoctorDetailsPage = () => {
                     ) : availableSlots.length === 0 ? (
                       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-red-200 bg-red-50 py-10 text-center">
                         <p className="text-sm font-semibold text-red-500">
-                          No slots on this day
+                          {leaveMessage ===
+                          'Doctor is on leave on selected date'
+                            ? 'Doctor is on leave on selected date'
+                            : 'No Slots Today'}
                         </p>
                         <p className="mt-1 text-xs text-red-400">
                           Try a different date
@@ -1276,6 +1356,125 @@ const DoctorDetailsPage = () => {
                     </div>
                   ))}
                 </div>
+                {/* ── Payment Method Selector (offline consultations only) ── */}
+                {consType === 'offline' && (
+                  <div className="mt-5">
+                    <label className="block text-sm font-bold text-slate-800 mb-3">
+                      Payment Method
+                    </label>
+                    <div className="flex gap-3">
+                      {/* Online */}
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMode('online')}
+                        className={`flex-1 flex items-center gap-3 rounded-2xl border-2 px-4 py-3 transition-all ${
+                          paymentMode === 'online'
+                            ? 'border-blue-600 bg-blue-50'
+                            : 'border-slate-200 bg-white hover:border-blue-200'
+                        }`}
+                      >
+                        <div
+                          className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl ${
+                            paymentMode === 'online'
+                              ? 'bg-blue-600'
+                              : 'bg-slate-100'
+                          }`}
+                        >
+                          <svg
+                            className={`h-5 w-5 ${paymentMode === 'online' ? 'text-white' : 'text-slate-500'}`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 8.25h19.5M3.75 6h16.5A1.5 1.5 0 0121.75 7.5v9A1.5 1.5 0 0120.25 18H3.75A1.5 1.5 0 012.25 16.5v-9A1.5 1.5 0 013.75 6z"
+                            />
+                          </svg>
+                        </div>
+                        <div className="text-left">
+                          <p
+                            className={`text-sm font-bold ${paymentMode === 'online' ? 'text-blue-700' : 'text-slate-700'}`}
+                          >
+                            Pay Online
+                          </p>
+                        </div>
+                        {paymentMode === 'online' && (
+                          <svg
+                            className="ml-auto h-5 w-5 text-blue-600 flex-shrink-0"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        )}
+                      </button>
+
+                      {/* Pay at Clinic */}
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMode('clinic')}
+                        className={`flex-1 flex items-center gap-3 rounded-2xl border-2 px-4 py-3 transition-all ${
+                          paymentMode === 'clinic'
+                            ? 'border-teal-600 bg-teal-50'
+                            : 'border-slate-200 bg-white hover:border-teal-200'
+                        }`}
+                      >
+                        <div
+                          className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl ${
+                            paymentMode === 'clinic'
+                              ? 'bg-teal-600'
+                              : 'bg-slate-100'
+                          }`}
+                        >
+                          <svg
+                            className={`h-5 w-5 ${paymentMode === 'clinic' ? 'text-white' : 'text-slate-500'}`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21"
+                            />
+                          </svg>
+                        </div>
+                        <div className="text-left">
+                          <p
+                            className={`text-sm font-bold ${paymentMode === 'clinic' ? 'text-teal-700' : 'text-slate-700'}`}
+                          >
+                            Pay at Clinic
+                          </p>
+                        </div>
+                        {paymentMode === 'clinic' && (
+                          <svg
+                            className="ml-auto h-5 w-5 text-teal-600 flex-shrink-0"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <button
                   onClick={handleBooking}

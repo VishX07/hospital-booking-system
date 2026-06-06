@@ -781,7 +781,8 @@ const DoctorsPage = () => {
               <DNAOrb />
             </div>
 
-            <div className="relative flex flex-col gap-8 px-8 py-10 md:flex-row md:items-center md:px-12">
+            <div className="relative flex flex-col gap-6 px-5 py-8 sm:px-8 sm:py-10 md:flex-row md:items-center md:px-12">
+              {' '}
               {/* Text */}
               <div className="flex-1">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold tracking-widest text-blue-100 uppercase backdrop-blur-sm">
@@ -832,20 +833,19 @@ const DoctorsPage = () => {
                   )}
                 </div>
               </div>
-
               {/* Illustration */}
-              <div className="mx-auto h-56 w-64 flex-shrink-0 md:mx-0 md:h-64 md:w-72 lg:h-72 lg:w-80 relative">
+              <div className="hidden md:block md:h-52 md:w-56 lg:h-72 lg:w-80 flex-shrink-0 relative">
                 <HeroIllustration />
               </div>
             </div>
 
             {/* Stats strip */}
             <div className="relative border-t border-white/10 bg-white/5 backdrop-blur-sm">
-              <div className="grid grid-cols-2 divide-x divide-white/10 sm:grid-cols-4">
+              <div className="grid grid-cols-2 divide-x divide-white/10 sm:grid-cols-4 divide-y sm:divide-y-0 divide-white/10">
                 {heroStats.map((st) => (
                   <div
                     key={st.label}
-                    className="stat-strip flex items-center gap-3 px-6 py-4"
+                    className="stat-strip flex items-center gap-2.5 px-4 py-3 sm:px-6 sm:py-4"
                   >
                     <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/15">
                       <svg

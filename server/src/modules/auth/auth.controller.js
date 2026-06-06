@@ -1,5 +1,6 @@
 import asyncHandler from '../../utils/asyncHandler.js';
 import {
+  googleLoginService,
   loginService,
   sendPasswordResetOtpService,
   signupService,
@@ -11,7 +12,7 @@ import {
   clearTokenCookie,
 } from '../../services/token.service.js';
 import { verifyOTPService } from './auth.service.js';
-
+import Doctor from '../../models/Doctor.model.js';
 export const signup = asyncHandler(async (req, res) => {
   const response = await signupService(req.body);
 
@@ -48,8 +49,6 @@ export const login = asyncHandler(async (req, res) => {
     user: response.user,
   });
 });
-
-import Doctor from '../../models/Doctor.model.js';
 
 export const getCurrentUser = asyncHandler(async (req, res) => {
   const {
@@ -98,6 +97,20 @@ export const logout = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Logout successful',
+  });
+});
+
+export const googleLogin = asyncHandler(async (req, res) => {
+  const { credential, role } = req.body;
+
+  const response = await googleLoginService(credential, role);
+
+  setTokenCookie(res, response.token);
+
+  res.status(200).json({
+    success: true,
+    message: 'Google login successful',
+    user: response.user,
   });
 });
 

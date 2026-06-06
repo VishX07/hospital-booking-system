@@ -10,6 +10,7 @@ import {
   sendAppointmentConfirmedEmail,
   sendAppointmentRejectedEmail,
 } from '../../services/email.service.js';
+import Payment from '../../models/Payment.model.js';
 const DAYS = [
   'sunday',
   'monday',
@@ -27,8 +28,13 @@ const timeToMinutes = (time) => {
 };
 
 export const bookAppointmentService = async (userId, appointmentData) => {
-  const { doctorId, appointmentDate, timeSlot, consultationType } =
-    appointmentData;
+  const {
+    doctorId,
+    appointmentDate,
+    timeSlot,
+    consultationType,
+    reasonForVisit,
+  } = appointmentData;
   // Prevent past date booking
   const today = new Date();
 
@@ -160,6 +166,14 @@ export const bookAppointmentService = async (userId, appointmentData) => {
     amount: doctor.consultationFee,
   });
 
+  await Payment.create({
+    appointmentId: appointment._id,
+    patientId: userId,
+    amount: doctor.consultationFee,
+    paymentMethod: 'razorpay',
+    status: 'pending',
+  });
+
   //create notification for doctor about new appointment request
   await createNotification({
     userId: doctor.userId,
@@ -169,7 +183,8 @@ export const bookAppointmentService = async (userId, appointmentData) => {
     message: `${patient.fullName}
  requested an appointment
  on ${appointmentDate}
- at ${timeSlot}.`,
+ at ${timeSlot}.
+ Reason: ${reasonForVisit}`,
 
     type: 'appointment',
 
@@ -836,6 +851,19 @@ export const getAvailableSlotsService = async (doctorId, selectedDate) => {
   if (bookingDate < today) {
     throw new ApiError(400, 'Cannot book appointment for past date');
   }
+
+  const isOnLeave = await DoctorLeave.findOne({
+    doctorId,
+    startDate: { $lte: bookingDate },
+    endDate: { $gte: bookingDate },
+  });
+  if (isOnLeave) {
+    return {
+      slots: [],
+      message: 'Doctor is on leave on selected date',
+    };
+  }
+
   // 3. Get day of week
   const dayOfWeek = DAYS[new Date(selectedDate).getDay()];
 
@@ -940,6 +968,7 @@ export const getAvailableSlotsService = async (doctorId, selectedDate) => {
   // 10. Return response
   return {
     slots: availableSlots,
+    message: 'Available slots retrieved successfully.',
   };
 };
 
@@ -1049,15 +1078,15 @@ export const rescheduleAppointmentService = async (
     title: 'Appointment Reschedule Request',
 
     message: `${patient.fullName}
-requested to reschedule appointment.
+  requested to reschedule appointment.
 
-Old:
-${new Date(oldDate).toLocaleDateString()}
-at ${oldTime}
+  Old:
+  ${new Date(oldDate).toLocaleDateString()}
+  at ${oldTime}
 
-New:
-${new Date(appointmentDate).toLocaleDateString()}
-at ${timeSlot}`,
+  New:
+  ${new Date(appointmentDate).toLocaleDateString()}
+  at ${timeSlot}`,
 
     type: 'appointment',
 
