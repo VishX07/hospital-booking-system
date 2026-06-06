@@ -22,8 +22,10 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
   res.send('Hospital API Running');
 });
+// Add BEFORE all other app.use() calls
 app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
   next();
 });
 
