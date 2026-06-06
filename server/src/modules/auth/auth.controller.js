@@ -10,6 +10,7 @@ import {
 import {
   setTokenCookie,
   clearTokenCookie,
+  generateToken,
 } from '../../services/token.service.js';
 import { verifyOTPService } from './auth.service.js';
 import Doctor from '../../models/Doctor.model.js';
