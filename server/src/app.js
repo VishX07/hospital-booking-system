@@ -35,7 +35,18 @@ app.get('/api/v1/test', (req, res) => {
     message: 'Backend Connected Successfully',
   });
 });
-
+app.get('/email-test', async (req, res) => {
+  try {
+    await transporter.verify();
+    res.json({ success: true, message: 'SMTP Connected' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 //routes
 import authRoutes from './modules/auth/auth.route.js';
 import departmentRoutes from './modules/department/department.route.js';
