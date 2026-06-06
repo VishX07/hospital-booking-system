@@ -355,6 +355,8 @@ const LoginPage = () => {
                       <GoogleLogin
                         onSuccess={handleGoogleLogin}
                         onError={() => toast.error('Google login failed')}
+                        useOneTap={false}
+                        flow="implicit"
                       />
                       <p className="text-xs text-gray-400">
                         Patients &amp; doctors can sign in with Google
