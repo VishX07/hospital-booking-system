@@ -13,6 +13,7 @@ import {
 } from '../../services/token.service.js';
 import { verifyOTPService } from './auth.service.js';
 import Doctor from '../../models/Doctor.model.js';
+import User from '../../models/User.model.js';
 export const signup = asyncHandler(async (req, res) => {
   const response = await signupService(req.body);
 
