@@ -114,6 +114,56 @@ export const googleLogin = asyncHandler(async (req, res) => {
   });
 });
 
+export const googleLoginWithAccessToken = asyncHandler(async (req, res) => {
+  const { accessToken } = req.body;
+
+  // Verify with Google and get user profile
+  const googleRes = await fetch(
+    `https://www.googleapis.com/oauth2/v3/userinfo`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+  );
+
+  if (!googleRes.ok) {
+    throw new ApiError(401, 'Invalid Google access token');
+  }
+
+  const profile = await googleRes.json();
+  const { sub, email, name, picture } = profile;
+
+  let user = await User.findOne({ email });
+  if (!user) {
+    user = await User.create({
+      fullName: name,
+      email,
+      role: 'patient',
+      profilePicture: picture,
+      googleId: sub,
+      loginProvider: 'google',
+      isVerified: true,
+    });
+  } else {
+    if (!user.googleId) {
+      user.googleId = sub;
+      await user.save();
+    }
+  }
+
+  const token = generateToken(user._id);
+  setTokenCookie(res, token);
+
+  res.status(200).json({
+    success: true,
+    message: 'Google login successful',
+    user: {
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role,
+      isVerified: user.isVerified,
+    },
+  });
+});
+
 export const sendPasswordResetOtp = asyncHandler(async (req, res) => {
   const { email } = req.body;
 

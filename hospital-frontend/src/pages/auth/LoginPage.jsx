@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-import { login } from '../../api/auth.api.js';
+import { login, googleLoginWithToken } from '../../api/auth.api.js';
 import useAuthStore from '../../store/auth.store.js';
 import ROUTES from '../../constants/routes.js';
 // import { GoogleLogin } from '@react-oauth/google';
@@ -103,10 +103,11 @@ const LoginPage = () => {
   //   }
   // };
 
+  // Add inside component
   const googleSignIn = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        await googleLogin({ credential: tokenResponse.access_token });
+        await googleLoginWithToken(tokenResponse.access_token);
         await fetchCurrentUser();
         const { user: currentUser, doctorProfile } = useAuthStore.getState();
         toast.success('Login successful');
@@ -387,9 +388,12 @@ const LoginPage = () => {
                       <button
                         type="button"
                         onClick={() => googleSignIn()}
-                        className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                        className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-50 hover:border-gray-400"
                       >
-                        <svg className="h-5 w-5" viewBox="0 0 24 24">
+                        <svg
+                          className="h-5 w-5 flex-shrink-0"
+                          viewBox="0 0 24 24"
+                        >
                           <path
                             fill="#4285F4"
                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

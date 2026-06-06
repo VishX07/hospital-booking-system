@@ -42,3 +42,5 @@ export const updateProfilePhoto = (formData) =>
   });
 
 export const googleLogin = (data) => api.post('/auth/google-login', data);
+export const googleLoginWithToken = (accessToken) =>
+  api.post('/auth/google-login-token', { accessToken });

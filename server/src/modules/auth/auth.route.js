@@ -10,6 +10,7 @@ import {
   sendChangePasswordOtp,
   changePassword,
   googleLogin,
+  googleLoginWithAccessToken,
 } from './auth.controller.js';
 import validate from '../../middleware/validate.middleware.js';
 import protect from '../../middleware/auth.middleware.js';
@@ -30,6 +31,7 @@ router.post('/login', validate(loginSchema), login);
 router.post('/verify-otp', validate(verifyOTPSchema), verifyOTP);
 router.post('/logout', logout);
 router.post('/google-login', googleLogin);
+router.post('/google-login-token', googleLoginWithAccessToken);
 router.get('/me', protect, getCurrentUser);
 router.get('/admin-test', protect, authorize('admin'), (req, res) => {
   res.json({
