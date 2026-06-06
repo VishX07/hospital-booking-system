@@ -1,7 +1,7 @@
-import transporter from '../config/nodemailer.js';
+import { sendEmail } from '../config/nodemailer.js';
 
 export const sendOTPEmail = async (email, otp) => {
-  await transporter.sendMail({
+  await sendEmail({
     from: `"Alpha Hospital" <${process.env.EMAIL_USER}>`,
 
     to: email,
