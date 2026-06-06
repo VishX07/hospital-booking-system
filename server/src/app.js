@@ -35,18 +35,7 @@ app.get('/api/v1/test', (req, res) => {
     message: 'Backend Connected Successfully',
   });
 });
-app.get('/email-test', async (req, res) => {
-  try {
-    await transporter.verify();
-    res.json({ success: true, message: 'SMTP Connected' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+
 //routes
 import authRoutes from './modules/auth/auth.route.js';
 import departmentRoutes from './modules/department/department.route.js';
@@ -62,7 +51,6 @@ import doctorLeaveRoutes from './modules/doctor-leaves/doctorLeave.route.js';
 import prescriptionRoutes from './modules/prescription/prescription.route.js';
 import statsRoutes from './modules/stats/stats.route.js';
 import paymentRoutes from './modules/payment/payment.route.js';
-import transporter from './config/nodemailer.js';
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/departments', departmentRoutes);
 app.use('/api/v1/doctors', doctorRoutes);
