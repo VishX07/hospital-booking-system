@@ -19,7 +19,7 @@ export const setTokenCookie = (res, token) => {
   res.cookie('accessToken', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none',
+    // sameSite: 'none',
     maxAge: SEVEN_DAYS_MS,
   });
 };

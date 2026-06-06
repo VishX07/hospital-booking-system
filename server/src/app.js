@@ -22,6 +22,10 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
   res.send('Hospital API Running');
 });
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  next();
+});
 
 app.get('/api/v1/test', (req, res) => {
   res.json({
