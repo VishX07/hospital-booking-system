@@ -5,6 +5,12 @@ import cookieParser from 'cookie-parser';
 import errorHandler from './middleware/error.middleware.js';
 
 const app = express();
+// Add BEFORE all other app.use() calls
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  next();
+});
 
 app.use(
   cors({
@@ -21,12 +27,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.get('/', (req, res) => {
   res.send('Hospital API Running');
-});
-// Add BEFORE all other app.use() calls
-app.use((req, res, next) => {
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
-  next();
 });
 
 app.get('/api/v1/test', (req, res) => {

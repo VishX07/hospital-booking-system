@@ -41,6 +41,8 @@ const LoginPage = () => {
       [e.target.name]: e.target.value,
     }));
   };
+  // Add this line temporarily above the return statement
+  console.log('Google Client ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
