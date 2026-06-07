@@ -35,6 +35,7 @@ export const verifyOTP = asyncHandler(async (req, res) => {
     success: true,
     message: response.message,
     user: response.user,
+    token: response.token,
   });
 });
 
@@ -43,7 +44,7 @@ export const login = asyncHandler(async (req, res) => {
 
   const response = await loginService(identifier, password);
 
-  // setTokenCookie(res, response.token);
+  setTokenCookie(res, response.token);
 
   res.status(200).json({
     success: true,
@@ -114,6 +115,7 @@ export const googleLogin = asyncHandler(async (req, res) => {
     success: true,
     message: 'Google login successful',
     user: response.user,
+    token: response.token,
   });
 });
 
@@ -164,6 +166,7 @@ export const googleLoginWithAccessToken = asyncHandler(async (req, res) => {
       role: user.role,
       isVerified: user.isVerified,
     },
+    token,
   });
 });
 

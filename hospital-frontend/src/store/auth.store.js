@@ -33,6 +33,7 @@ const useAuthStore = create((set) => ({
   logoutUser: async () => {
     try {
       await logout();
+      localStorage.removeItem('accessToken');
     } catch {
       // ignore
     }

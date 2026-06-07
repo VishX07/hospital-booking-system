@@ -33,8 +33,10 @@ const SignupPage = () => {
 
     try {
       setLoading(true);
-      await signup(formData);
-
+      const responce = await signup(formData);
+      if (responce.data.token) {
+        localStorage.setItem('accessToken', responce.data.token);
+      }
       toast.success('OTP sent successfully');
 
       navigate(ROUTES.VERIFY_OTP, {
@@ -56,7 +58,12 @@ const SignupPage = () => {
   // role first, then approval status — same pattern as handleSubmit.
   const handleGoogleLogin = async (credentialResponse) => {
     try {
-      await googleLogin({ credential: credentialResponse.credential });
+      const responce = await googleLogin({
+        credential: credentialResponse.credential,
+      });
+      if (responce.data.token) {
+        localStorage.setItem('accessToken', responce.data.token);
+      }
       await fetchCurrentUser();
       const { user: currentUser, doctorProfile } = useAuthStore.getState();
 

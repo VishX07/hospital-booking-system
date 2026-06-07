@@ -116,7 +116,10 @@ const LoginPage = () => {
   const googleSignIn = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        await googleLoginWithToken(tokenResponse.access_token);
+        const responce = await googleLoginWithToken(tokenResponse.access_token);
+        if (responce.data.token) {
+          localStorage.setItem('accessToken', responce.data.token);
+        }
         await fetchCurrentUser();
         const { user: currentUser, doctorProfile } = useAuthStore.getState();
         toast.success('Login successful');
