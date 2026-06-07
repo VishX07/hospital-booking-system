@@ -494,6 +494,7 @@ const PatientSidebar = () => {
 
   const handleLogout = async () => {
     await logoutUser();
+    localStorage.removeItem('accessToken');
     toast.success('Logged out successfully');
     navigate(ROUTES.LOGIN);
   };

@@ -32,12 +32,17 @@ const useAuthStore = create((set) => ({
 
   logoutUser: async () => {
     try {
+      console.log('before', localStorage.getItem('accessToken'));
+
       await logout();
+
       localStorage.removeItem('accessToken');
-      navigate('/login');
-    } catch {
-      // ignore
+
+      console.log('after', localStorage.getItem('accessToken'));
+    } catch (err) {
+      console.log(err);
     }
+
     set({
       user: null,
       isAuthenticated: false,
