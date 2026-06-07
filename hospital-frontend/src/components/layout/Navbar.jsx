@@ -578,7 +578,7 @@ const Navbar = ({ onOpenSidebar }) => {
       }
       const appointmentId = notification?.metadata?.appointmentId;
       if (appointmentId)
-        navigate({ pathname: `/patient/appointments/${appointmentId}` });
+        navigate({ pathname: `/doctor/appointments/${appointmentId}` });
     } catch {
       toast.error('Something went wrong');
     }
