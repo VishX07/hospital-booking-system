@@ -520,9 +520,8 @@ export const sendPrescriptionEmail = async ({
   pdfBuffer,
   prescriptionId,
 }) => {
+  console.log('Base64 Length:', pdfBuffer.toString('base64').length);
   await sendEmail({
-    from: `"Alpha Hospital" <${process.env.EMAIL_USER}>`,
-
     to: email,
 
     subject: 'Your Prescription is Ready',
@@ -538,29 +537,23 @@ export const sendPrescriptionEmail = async ({
   background: #ffffff;
 ">
 
-  <h2 style="
-    color:#16a34a;
-    margin-top:0;
-  ">
+  <h2 style="color:#16a34a;">
     Prescription Ready
   </h2>
 
   <p>
-    Hello
-    <strong>${patientName}</strong>,
+    Hello <strong>${patientName}</strong>,
   </p>
 
   <p>
     Your consultation with
-    <strong>
-      Dr. ${doctorName}
-    </strong>
+    <strong>Dr. ${doctorName}</strong>
     has been completed.
   </p>
 
   <p>
-    Your prescription PDF
-    is attached with this email.
+    Your prescription PDF is attached
+    with this email.
   </p>
 
   <p>
@@ -568,28 +561,21 @@ export const sendPrescriptionEmail = async ({
     and instructions carefully.
   </p>
 
-  <p style="
-    margin-top:30px;
-  ">
+  <p>
     Thank you,
   </p>
 
   <p>
-    <strong>
-      Alpha Hospital
-    </strong>
+    <strong>Alpha Hospital</strong>
   </p>
 
 </div>
 `,
 
-    attachments: [
+    attachment: [
       {
-        filename: `prescription-${prescriptionId}.pdf`,
-
-        content: pdfBuffer,
-
-        contentType: 'application/pdf',
+        name: `prescription-${prescriptionId}.pdf`,
+        content: pdfBuffer.toString('base64'),
       },
     ],
   });

@@ -90,6 +90,10 @@ export const createPrescriptionService = async (userId, prescriptionData) => {
   // Generate PDF buffer
   const pdfBuffer = await generatePrescriptionPDF(populatedPrescription);
 
+  console.log('PDF Buffer Exists:', !!pdfBuffer);
+  console.log('Is Buffer:', Buffer.isBuffer(pdfBuffer));
+  console.log('Buffer Length:', pdfBuffer?.length);
+
   // Send email
   await sendPrescriptionEmail({
     email: populatedPrescription.patientId.email,
