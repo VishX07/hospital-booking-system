@@ -1,6 +1,9 @@
+/**
+ * DoctorDetailsPage.jsx — Mobile-first, original UI preserved
+ */
+
 import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-
 import DashboardLayout from '../../components/layout/DashboardLayout.jsx';
 import { getDoctorById } from '../../api/doctor.api.js';
 import { getDoctorSchedules } from '../../api/schedule.api.js';
@@ -15,15 +18,15 @@ import {
   verifyPayment,
   bookOfflineAppointment,
 } from '../../api/payment.api.js';
-/* ─── Styles ──────────────────────────────────────────────────────────────── */
+
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
 
   .dr-root { font-family: 'DM Sans', sans-serif; }
   .dr-root h1,.dr-root h2,.dr-root h3,.dr-root h4 { font-family: 'Sora', sans-serif; }
 
   @keyframes fadeUp {
-    from { opacity:0; transform:translateY(18px); }
+    from { opacity:0; transform:translateY(16px); }
     to   { opacity:1; transform:translateY(0); }
   }
   @keyframes float1 {
@@ -52,10 +55,18 @@ const styles = `
     30%      { transform:scale(1.08) translateY(-4px); }
     60%      { transform:scale(1.03) translateY(-1px); }
   }
+  @keyframes slideUp {
+    from { opacity:0; transform:translateY(100%); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes calIn {
+    from { opacity:0; transform:translateY(-8px) scale(.98); }
+    to   { opacity:1; transform:translateY(0) scale(1); }
+  }
 
-  .anim-fade-up { animation:fadeUp .55s ease both; }
-  .d1{animation-delay:.06s}.d2{animation-delay:.12s}
-  .d3{animation-delay:.18s}.d4{animation-delay:.24s}
+  .anim-fade-up { animation:fadeUp .5s ease both; }
+  .d1{animation-delay:.05s}.d2{animation-delay:.10s}
+  .d3{animation-delay:.15s}.d4{animation-delay:.20s}
 
   .float-1 { animation:float1 5s ease-in-out infinite; }
   .float-2 { animation:float2 4.4s ease-in-out infinite .6s; }
@@ -63,23 +74,44 @@ const styles = `
   .spin-slow { animation:spin-slow 20s linear infinite; }
   .pulse-dot { animation:pulse-dot 2s ease-in-out infinite; }
 
-  .info-card { transition:transform .22s ease,box-shadow .22s ease; }
-  .info-card:hover { transform:translateY(-3px); box-shadow:0 12px 36px rgba(0,0,0,.08); }
+  .info-card { transition:transform .2s ease,box-shadow .2s ease; }
+  @media (hover:hover) {
+    .info-card:hover { transform:translateY(-3px); box-shadow:0 12px 36px rgba(0,0,0,.08); }
+  }
 
-  .slot-btn { transition:all .18s ease; }
-  .slot-btn:hover:not(.slot-active) { transform:translateY(-2px); box-shadow:0 4px 14px rgba(59,130,246,.18); }
+  .slot-btn { transition:all .16s ease; -webkit-tap-highlight-color:transparent; }
+  .slot-btn:active { transform:scale(.96); }
+  @media (hover:hover) {
+    .slot-btn:hover:not(.slot-active) { transform:translateY(-2px); box-shadow:0 4px 14px rgba(59,130,246,.18); }
+  }
 
-  .book-btn { transition:all .2s cubic-bezier(.34,1.3,.64,1); }
-  .book-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 28px rgba(29,78,216,.35); background:#1d4ed8; }
+  .book-btn { transition:all .2s cubic-bezier(.34,1.3,.64,1); -webkit-tap-highlight-color:transparent; }
+  .book-btn:active:not(:disabled) { transform:scale(.97); }
+  @media (hover:hover) {
+    .book-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 28px rgba(29,78,216,.35); background:#1d4ed8; }
+  }
 
-  .review-card { transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease; }
-  .review-card:hover { transform:translateX(3px); box-shadow:0 4px 18px rgba(59,130,246,.09); border-color:#bfdbfe; }
+  .review-card { transition:transform .2s ease,box-shadow .2s ease; }
+  @media (hover:hover) {
+    .review-card:hover { transform:translateX(3px); box-shadow:0 4px 18px rgba(59,130,246,.09); border-color:#bfdbfe; }
+  }
 
-  .input-field { transition:all .18s ease; }
+  .input-field { transition:all .16s ease; }
   .input-field:focus { background:white; border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.15); outline:none; }
 
-  .type-tab { transition:all .18s ease; }
+  .type-tab { transition:all .16s ease; -webkit-tap-highlight-color:transparent; }
   .type-tab.active { background:#2563eb; color:white; box-shadow:0 4px 14px rgba(37,99,235,.3); transform:translateY(-1px); }
+
+  .day-chip { transition:all .16s ease; -webkit-tap-highlight-color:transparent; }
+  .day-chip:active { transform:scale(.94); }
+  .day-chip.day-active { background:#2563eb; color:white; box-shadow:0 4px 16px rgba(37,99,235,.35); border-color:#2563eb !important; }
+
+  .cal-panel { animation:calIn .25s ease both; }
+  .cal-day { transition:all .14s ease; -webkit-tap-highlight-color:transparent; border-radius:10px; }
+  .cal-day:active:not(:disabled) { transform:scale(.9); }
+  .cal-day.cal-today { border:2px solid #3b82f6 !important; }
+  .cal-day.cal-selected { background:#2563eb !important; color:white !important; }
+  .cal-day:disabled { opacity:.3; cursor:not-allowed; }
 
   .wa-fab {
     cursor:grab;
@@ -90,11 +122,28 @@ const styles = `
   .wa-fab.is-dragging { animation:none !important; cursor:grabbing; }
   .wa-pulse { animation:pulse-ring 2s ease-in-out infinite; }
 
-  .field-pill { transition:background .16s ease; }
-  .field-pill:hover { background:#f1f5f9; }
+  .field-pill { transition:background .14s ease; }
+  @media (hover:hover) { .field-pill:hover { background:#f1f5f9; } }
+
+  .sticky-book-bar {
+    position:fixed;
+    bottom:0; left:0; right:0;
+    z-index:40;
+    background:white;
+    border-top:1px solid #e2e8f0;
+    padding:12px 16px env(safe-area-inset-bottom,12px);
+    animation:slideUp .3s ease both;
+    box-shadow:0 -4px 24px rgba(15,23,42,.08);
+  }
+
+  .no-scroll::-webkit-scrollbar { display:none; }
+  .no-scroll { scrollbar-width:none; -ms-overflow-style:none; }
+
+  .pay-btn { transition:all .16s ease; -webkit-tap-highlight-color:transparent; }
+  .pay-btn:active { transform:scale(.97); }
 `;
 
-/* ─── Default Avatar ──────────────────────────────────────────────────────── */
+/* ── Avatar ── */
 const palettes = [
   { bg: '#eff6ff', fg: '#1d4ed8', border: '#bfdbfe' },
   { bg: '#eef2ff', fg: '#4338ca', border: '#c7d2fe' },
@@ -102,7 +151,6 @@ const palettes = [
   { bg: '#fdf4ff', fg: '#7e22ce', border: '#e9d5ff' },
   { bg: '#fff7ed', fg: '#c2410c', border: '#fed7aa' },
 ];
-
 const DoctorAvatar = ({ src, name = '', className = '' }) => {
   const [err, setErr] = useState(false);
   const initials = name
@@ -145,7 +193,7 @@ const DoctorAvatar = ({ src, name = '', className = '' }) => {
   );
 };
 
-/* ─── Stars ───────────────────────────────────────────────────────────────── */
+/* ── Stars ── */
 const Stars = ({ rating, size = 'sm' }) => (
   <div className="flex items-center gap-0.5">
     {[1, 2, 3, 4, 5].map((s) => (
@@ -161,32 +209,274 @@ const Stars = ({ rating, size = 'sm' }) => (
   </div>
 );
 
-/* ─── Card wrapper ────────────────────────────────────────────────────────── */
+/* ── Card ── */
 const Card = ({ children, className = '', delay = '' }) => (
   <section
-    className={`info-card anim-fade-up ${delay} rounded-3xl border border-slate-200 bg-white p-6 shadow-sm ${className}`}
+    className={`info-card anim-fade-up ${delay} rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm ${className}`}
   >
     {children}
   </section>
 );
 
-/* ─── Section heading ─────────────────────────────────────────────────────── */
+/* ── Section heading ── */
 const SHead = ({ icon, title, sub }) => (
-  <div className="mb-6 flex items-center gap-3">
-    <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+  <div className="mb-5 flex items-center gap-3">
+    <span className="flex h-10 w-10 sm:h-11 sm:w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
       {icon}
     </span>
     <div>
-      <h2 className="text-xl font-bold text-slate-900">{title}</h2>
-      {sub && <p className="text-sm text-slate-500">{sub}</p>}
+      <h2 className="text-lg sm:text-xl font-bold text-slate-900">{title}</h2>
+      {sub && <p className="text-xs sm:text-sm text-slate-500">{sub}</p>}
     </div>
   </div>
 );
 
-/* ─── Hero Illustration (doctor + floating badges) ────────────────────────── */
+/* ── Styled Date Picker: 3 quick chips + "Choose date" calendar ── */
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+const WDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+const StyledDatePicker = ({ value, onChange }) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Only 3 quick chips: today, tomorrow, day after
+  const strip = Array.from({ length: 3 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    return d;
+  });
+
+  const [showCal, setShowCal] = useState(false);
+  const [calYear, setCalYear] = useState(today.getFullYear());
+  const [calMonth, setCalMonth] = useState(today.getMonth());
+
+  const toISO = (d) => d.toISOString().split('T')[0];
+  const isStripDate = value && strip.some((d) => toISO(d) === value);
+
+  // Calendar grid
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const handleCalDay = (day) => {
+    if (!day) return;
+    const d = new Date(calYear, calMonth, day);
+    if (d < today) return;
+    onChange(toISO(d));
+    setShowCal(false);
+  };
+
+  const prevMonth = () => {
+    if (calMonth === 0) {
+      setCalMonth(11);
+      setCalYear((y) => y - 1);
+    } else setCalMonth((m) => m - 1);
+  };
+  const nextMonth = () => {
+    if (calMonth === 11) {
+      setCalMonth(0);
+      setCalYear((y) => y + 1);
+    } else setCalMonth((m) => m + 1);
+  };
+  const canPrev = new Date(calYear, calMonth, 1) > today;
+  const todayISO = toISO(today);
+
+  return (
+    <div>
+      {/* 3-chip quick strip + "Choose date" button */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {strip.map((d, i) => {
+          const iso = toISO(d);
+          const isSelected = value === iso;
+          const isToday = i === 0;
+          return (
+            <button
+              key={iso}
+              onClick={() => {
+                onChange(iso);
+                setShowCal(false);
+              }}
+              className={`day-chip flex flex-col items-center justify-center rounded-2xl border-2 w-[72px] h-16 gap-0.5 font-semibold flex-shrink-0
+                ${isSelected ? 'day-active' : isToday ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700'}`}
+            >
+              <span
+                className={`text-[10px] font-bold uppercase tracking-wide ${isSelected ? 'text-blue-100' : isToday ? 'text-blue-500' : 'text-slate-400'}`}
+              >
+                {isToday
+                  ? 'Today'
+                  : d.toLocaleDateString('en-US', { weekday: 'short' })}
+              </span>
+              <span
+                className={`text-xl font-extrabold leading-none ${isSelected ? 'text-white' : isToday ? 'text-blue-700' : 'text-slate-800'}`}
+              >
+                {d.getDate()}
+              </span>
+              <span
+                className={`text-[9px] ${isSelected ? 'text-blue-200' : isToday ? 'text-blue-400' : 'text-slate-400'}`}
+              >
+                {d.toLocaleDateString('en-US', { month: 'short' })}
+              </span>
+            </button>
+          );
+        })}
+
+        {/* Choose date button */}
+        <button
+          onClick={() => setShowCal((v) => !v)}
+          className={`day-chip flex flex-col items-center justify-center rounded-2xl border-2 w-[72px] h-16 gap-1 flex-shrink-0
+            ${
+              showCal || (!isStripDate && value)
+                ? 'border-indigo-400 bg-indigo-50 text-indigo-700'
+                : 'border-slate-200 bg-slate-50 text-slate-500'
+            }`}
+        >
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6.75 3v2.25M17.25 3v2.25M3.75 8.25h16.5M4.5 21h15a1.5 1.5 0 001.5-1.5V6.75a1.5 1.5 0 00-1.5-1.5h-15A1.5 1.5 0 003 6.75V19.5A1.5 1.5 0 004.5 21z"
+            />
+          </svg>
+          <span className="text-[9px] font-bold leading-tight text-center">
+            Choose
+            <br />
+            date
+          </span>
+        </button>
+      </div>
+
+      {/* Selected date label */}
+      {value && (
+        <p className="mt-2 text-xs font-semibold text-blue-600">
+          📅{' '}
+          {new Date(value + 'T00:00:00').toLocaleDateString('en-US', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })}
+        </p>
+      )}
+
+      {/* Calendar panel */}
+      {showCal && (
+        <div className="cal-panel mt-3 rounded-3xl border border-slate-200 bg-white shadow-xl overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3">
+            <button
+              onClick={prevMonth}
+              disabled={!canPrev}
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/20 text-white disabled:opacity-30 hover:bg-white/30 transition"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
+            </button>
+            <span className="text-sm font-bold text-white">
+              {MONTHS[calMonth]} {calYear}
+            </span>
+            <button
+              onClick={nextMonth}
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/20 text-white hover:bg-white/30 transition"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                />
+              </svg>
+            </button>
+          </div>
+          {/* Day labels */}
+          <div className="grid grid-cols-7 bg-blue-50 px-2 py-1.5">
+            {WDAYS.map((d) => (
+              <div
+                key={d}
+                className="text-center text-[10px] font-bold uppercase tracking-wide text-blue-400"
+              >
+                {d}
+              </div>
+            ))}
+          </div>
+          {/* Grid */}
+          <div className="grid grid-cols-7 gap-1 p-2">
+            {cells.map((day, i) => {
+              if (!day) return <div key={`e-${i}`} />;
+              const d = new Date(calYear, calMonth, day);
+              const iso = toISO(d);
+              const isPast = d < today;
+              const isTodayC = iso === todayISO;
+              const isSelected = iso === value;
+              return (
+                <button
+                  key={iso}
+                  onClick={() => handleCalDay(day)}
+                  disabled={isPast}
+                  className={`cal-day h-9 w-full text-sm font-bold flex items-center justify-center
+                    ${isSelected ? 'cal-selected' : isTodayC ? 'cal-today text-blue-700 bg-blue-50' : isPast ? 'text-slate-300' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'}`}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+          {/* Footer */}
+          <div className="border-t border-slate-100 px-4 py-2.5 flex items-center justify-between">
+            <p className="text-xs text-slate-400">Select any future date</p>
+            <button
+              onClick={() => setShowCal(false)}
+              className="text-xs font-bold text-blue-600"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ── Hero Illustration ── */
 const HeroIllustration = () => (
   <div className="relative w-full h-full">
-    {/* Doctor SVG */}
     <svg
       viewBox="0 0 260 230"
       xmlns="http://www.w3.org/2000/svg"
@@ -200,7 +490,6 @@ const HeroIllustration = () => (
         ry="32"
         fill="rgba(255,255,255,0.08)"
       />
-      {/* Desk */}
       <rect
         x="48"
         y="165"
@@ -209,7 +498,6 @@ const HeroIllustration = () => (
         rx="5"
         fill="rgba(255,255,255,0.22)"
       />
-      {/* Laptop */}
       <rect
         x="72"
         y="112"
@@ -236,7 +524,6 @@ const HeroIllustration = () => (
         rx="2.5"
         fill="rgba(255,255,255,0.28)"
       />
-      {/* Screen content */}
       <line
         x1="82"
         y1="140"
@@ -254,15 +541,12 @@ const HeroIllustration = () => (
         strokeWidth="1.8"
       />
       <rect x="82" y="155" width="36" height="5" rx="2.5" fill="#bfdbfe" />
-      {/* Body */}
       <circle cx="130" cy="62" r="28" fill="#fde8d0" />
-      {/* Hair */}
       <path
         d="M102,56 Q104,36 130,34 Q156,36 158,56 Q147,44 130,44 Q113,44 102,56z"
         fill="#374151"
         opacity=".85"
       />
-      {/* White coat */}
       <rect
         x="108"
         y="87"
@@ -286,10 +570,8 @@ const HeroIllustration = () => (
         strokeWidth="2"
         opacity=".5"
       />
-      {/* Arms */}
       <rect x="94" y="90" width="16" height="38" rx="8" fill="#fde8d0" />
       <rect x="150" y="90" width="16" height="38" rx="8" fill="#fde8d0" />
-      {/* Stethoscope */}
       <path
         d="M116,98 Q104,110 106,124 Q108,133 116,133"
         fill="none"
@@ -306,7 +588,6 @@ const HeroIllustration = () => (
         strokeWidth="2.2"
       />
       <circle cx="116" cy="136" r="2.5" fill="#3b82f6" opacity=".5" />
-      {/* Face */}
       <circle cx="121" cy="59" r="3.5" fill="#374151" opacity=".7" />
       <circle cx="139" cy="59" r="3.5" fill="#374151" opacity=".7" />
       <path
@@ -317,7 +598,6 @@ const HeroIllustration = () => (
         strokeLinecap="round"
         opacity=".6"
       />
-      {/* Name tag */}
       <rect x="120" y="143" width="20" height="13" rx="3.5" fill="#dbeafe" />
       <text
         x="123"
@@ -330,8 +610,6 @@ const HeroIllustration = () => (
         Dr.
       </text>
     </svg>
-
-    {/* Badge 1 — Rating */}
     <svg
       viewBox="0 0 106 42"
       xmlns="http://www.w3.org/2000/svg"
@@ -382,48 +660,6 @@ const HeroIllustration = () => (
         Top 5%
       </text>
     </svg>
-
-    {/* Badge 2 — Verified */}
-    <svg
-      viewBox="0 0 112 38"
-      xmlns="http://www.w3.org/2000/svg"
-      className="float-3 absolute bottom-6 left-0 w-28"
-      aria-hidden="true"
-    >
-      <rect width="112" height="38" rx="11" fill="white" opacity=".93" />
-      <rect
-        width="112"
-        height="38"
-        rx="11"
-        fill="none"
-        stroke="#bbf7d0"
-        strokeWidth="1"
-      />
-      <circle cx="18" cy="19" r="9" fill="#dcfce7" />
-      <path
-        d="M13,19 l4,4 7-7"
-        stroke="#16a34a"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <text
-        x="32"
-        y="15"
-        fontFamily="sans-serif"
-        fontSize="7.5"
-        fill="#15803d"
-        fontWeight="700"
-      >
-        VERIFIED MD
-      </text>
-      <text x="32" y="28" fontFamily="sans-serif" fontSize="7" fill="#64748b">
-        Board Certified
-      </text>
-    </svg>
-
-    {/* Badge 3 — Online */}
     <svg
       viewBox="0 0 98 36"
       xmlns="http://www.w3.org/2000/svg"
@@ -458,7 +694,7 @@ const HeroIllustration = () => (
   </div>
 );
 
-/* ─── Draggable WhatsApp button ───────────────────────────────────────────── */
+/* ── Draggable WhatsApp ── */
 const DraggableWhatsApp = ({ phone }) => {
   const ref = useRef(null);
   const state = useRef({
@@ -471,7 +707,7 @@ const DraggableWhatsApp = ({ phone }) => {
   });
   const [pos, setPos] = useState({
     x: window.innerWidth - 80,
-    y: window.innerHeight - 90,
+    y: window.innerHeight - 160,
   });
 
   useEffect(() => {
@@ -479,8 +715,8 @@ const DraggableWhatsApp = ({ phone }) => {
       if (!state.current.down) return;
       const cx = e.touches ? e.touches[0].clientX : e.clientX;
       const cy = e.touches ? e.touches[0].clientY : e.clientY;
-      const dx = cx - state.current.sx;
-      const dy = cy - state.current.sy;
+      const dx = cx - state.current.sx,
+        dy = cy - state.current.sy;
       if (Math.abs(dx) > 4 || Math.abs(dy) > 4) state.current.moved = true;
       setPos({
         x: Math.max(
@@ -538,7 +774,7 @@ const DraggableWhatsApp = ({ phone }) => {
         top: pos.y,
         boxShadow: '0 8px 30px rgba(34,197,94,0.5)',
       }}
-      title="Chat on WhatsApp · drag to move"
+      title="Chat on WhatsApp"
       aria-label="Contact on WhatsApp"
     >
       <svg
@@ -549,7 +785,6 @@ const DraggableWhatsApp = ({ phone }) => {
       >
         <path d="M20.52 3.48A11.86 11.86 0 0012.09 0C5.52 0 .18 5.34.18 11.91c0 2.1.55 4.15 1.6 5.96L.08 24l6.28-1.65a11.9 11.9 0 005.73 1.46h.01c6.57 0 11.91-5.34 11.91-11.91a11.86 11.86 0 00-3.49-8.42zM12.1 21.8h-.01a9.88 9.88 0 01-5.04-1.38l-.36-.21-3.72.98.99-3.63-.24-.37a9.87 9.87 0 01-1.52-5.28c0-5.46 4.44-9.9 9.91-9.9a9.84 9.84 0 017 2.9 9.85 9.85 0 012.9 7c-.01 5.45-4.45 9.89-9.91 9.89zm5.43-7.41c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35z" />
       </svg>
-      {/* drag hint chip */}
       <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm">
         <svg
           className="h-3 w-3 text-green-600"
@@ -569,7 +804,149 @@ const DraggableWhatsApp = ({ phone }) => {
   );
 };
 
-/* ─── Main Page ───────────────────────────────────────────────────────────── */
+/* ── Mobile Sticky Book Bar ── */
+const StickyBookBar = ({
+  doctor,
+  selectedDate,
+  selectedSlot,
+  reason,
+  consType,
+  paymentMode,
+  setPaymentMode,
+  onBook,
+  bookLoading,
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const ready = selectedDate && selectedSlot && reason;
+
+  return (
+    <div className="sticky-book-bar xl:hidden">
+      {!expanded ? (
+        <div className="flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              {selectedDate ? (
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">
+                  {new Date(selectedDate + 'T00:00:00').toLocaleDateString(
+                    'en-US',
+                    { day: 'numeric', month: 'short' },
+                  )}
+                </span>
+              ) : (
+                <span className="text-xs text-slate-400">No date</span>
+              )}
+              {selectedSlot ? (
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">
+                  {selectedSlot}
+                </span>
+              ) : (
+                <span className="text-xs text-slate-400">No slot</span>
+              )}
+              <span className="text-xs font-bold text-slate-700">
+                ₹{doctor?.consultationFee}
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={() => (ready ? onBook() : setExpanded(true))}
+            disabled={bookLoading}
+            className="book-btn flex-shrink-0 inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-900/20 disabled:opacity-60"
+          >
+            {bookLoading ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            ) : ready ? (
+              '✓ Confirm'
+            ) : (
+              'Fill Details'
+            )}
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-bold text-slate-800">
+              Confirm Booking
+            </span>
+            <button
+              onClick={() => setExpanded(false)}
+              className="text-slate-400"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          {consType === 'offline' && (
+            <div className="flex gap-2">
+              {[
+                { k: 'online', l: 'Pay Online' },
+                { k: 'clinic', l: 'At Clinic' },
+              ].map((opt) => (
+                <button
+                  key={opt.k}
+                  onClick={() => setPaymentMode(opt.k)}
+                  className={`pay-btn flex-1 rounded-2xl border-2 py-2.5 text-xs font-bold
+                    ${paymentMode === opt.k ? (opt.k === 'online' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-teal-600 bg-teal-50 text-teal-700') : 'border-slate-200 bg-white text-slate-600'}`}
+                >
+                  {opt.l}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3">
+            <span className="text-sm font-bold text-blue-200">Total</span>
+            <span className="text-xl font-extrabold text-white">
+              ₹{doctor?.consultationFee}
+            </span>
+          </div>
+          <button
+            onClick={onBook}
+            disabled={bookLoading}
+            className="book-btn flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-lg disabled:opacity-60"
+          >
+            {bookLoading ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                Confirming…
+              </>
+            ) : (
+              <>
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Confirm Appointment
+              </>
+            )}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ================================================================
+   MAIN PAGE
+   ================================================================ */
 const DoctorDetailsPage = () => {
   const { id } = useParams();
 
@@ -586,14 +963,13 @@ const DoctorDetailsPage = () => {
   const [avgRating, setAvgRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
   const [leaveMessage, setLeaveMessage] = useState('');
-  const [paymentMode, setPaymentMode] = useState('online'); // 'online' | 'offline'
+  const [paymentMode, setPaymentMode] = useState('online');
 
   useEffect(() => {
     fetchDoctor();
     fetchSchedules();
     fetchReviews();
   }, [id]);
-
   useEffect(() => {
     setPaymentMode('online');
   }, [consType]);
@@ -630,43 +1006,15 @@ const DoctorDetailsPage = () => {
   const generateSlots = async (date) => {
     try {
       setSelectedDate(date);
-
       setSelectedSlot('');
-
-      const response = await getAvailableSlots(id, date);
-      setLeaveMessage(response.data.message);
-      setSlots(response.data.slots || []);
-    } catch (error) {
+      const res = await getAvailableSlots(id, date);
+      setLeaveMessage(res.data.message);
+      setSlots(res.data.slots || []);
+    } catch (err) {
       setSlots([]);
-
-      toast.error(error?.response?.data?.message || 'Failed to fetch slots');
+      toast.error(err?.response?.data?.message || 'Failed to fetch slots');
     }
   };
-
-  // const handleBooking = async () => {
-  //   if (!selectedDate) return toast.error('Select a date');
-  //   if (!selectedSlot) return toast.error('Select a time slot');
-  //   if (!reason) return toast.error('Enter reason for visit');
-  //   try {
-  //     setBookLoading(true);
-  //     await bookAppointment({
-  //       doctorId: id,
-  //       appointmentDate: selectedDate,
-  //       timeSlot: selectedSlot,
-  //       consultationType: consType,
-  //       reasonForVisit: reason,
-  //     });
-  //     toast.success('Appointment booked successfully!');
-  //     setSelectedSlot('');
-  //     setReason('');
-  //     setSelectedDate('');
-  //     setSlots([]);
-  //   } catch (e) {
-  //     toast.error(e?.response?.data?.message || 'Booking failed');
-  //   } finally {
-  //     setBookLoading(false);
-  //   }
-  // };
 
   const handleBooking = async () => {
     if (!selectedDate) return toast.error('Select a date');
@@ -683,8 +1031,6 @@ const DoctorDetailsPage = () => {
 
     try {
       setBookLoading(true);
-
-      /* ── Path A: Pay at Clinic ── */
       if (consType === 'offline' && paymentMode === 'clinic') {
         await bookOfflineAppointment(appointmentData);
         toast.success('Appointment booked! Please pay at the clinic.');
@@ -694,10 +1040,7 @@ const DoctorDetailsPage = () => {
         setSlots([]);
         return;
       }
-
-      /* ── Path B: Online Payment via Razorpay ── */
       const { data } = await createPaymentOrder(id);
-
       const options = {
         key: data.key,
         amount: data.order.amount,
@@ -706,7 +1049,6 @@ const DoctorDetailsPage = () => {
         name: 'AlphaCare',
         description: `Consultation with Dr. ${doctor?.userId?.fullName}`,
         theme: { color: '#0d9488' },
-
         handler: async (response) => {
           try {
             await verifyPayment({
@@ -726,7 +1068,6 @@ const DoctorDetailsPage = () => {
             );
           }
         },
-
         modal: {
           ondismiss: () => {
             toast.error('Payment cancelled');
@@ -734,7 +1075,6 @@ const DoctorDetailsPage = () => {
           },
         },
       };
-
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
@@ -750,7 +1090,7 @@ const DoctorDetailsPage = () => {
         <div className="flex min-h-[70vh] items-center justify-center bg-[#f0f5fb]">
           <div className="rounded-3xl border border-slate-200 bg-white px-10 py-9 text-center shadow-md">
             <div className="mx-auto mb-4 h-11 w-11 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
-            <p className="text-sm font-semibold text-slate-500 tracking-wide">
+            <p className="text-sm font-semibold text-slate-500">
               Loading doctor profile…
             </p>
           </div>
@@ -764,10 +1104,10 @@ const DoctorDetailsPage = () => {
     <DashboardLayout>
       <style>{styles}</style>
 
-      <div className="dr-root min-h-screen bg-[#f0f5fb] px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl space-y-6">
-          {/* ── HERO ────────────────────────────────────────────────────────── */}
-          <div className="anim-fade-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 shadow-2xl">
+      <div className="dr-root bg-[#f0f5fb] px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8 pb-24 xl:pb-8">
+        <div className="mx-auto max-w-7xl space-y-4 sm:space-y-5">
+          {/* ── HERO ── */}
+          <div className="anim-fade-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 shadow-xl">
             <div
               className="pointer-events-none absolute inset-0 opacity-[0.04]"
               style={{
@@ -776,9 +1116,9 @@ const DoctorDetailsPage = () => {
                 backgroundSize: '32px 32px',
               }}
             />
-            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white opacity-5" />
-            <div className="pointer-events-none absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-indigo-300 opacity-10 blur-3xl" />
-            {/* spinning ring */}
+            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white opacity-5" />
+            <div className="pointer-events-none absolute bottom-0 left-1/4 h-36 w-36 rounded-full bg-indigo-300 opacity-10 blur-3xl" />
+            {/* spin ring — desktop only */}
             <div className="pointer-events-none absolute top-4 left-4 hidden h-20 w-20 opacity-20 lg:block">
               <svg viewBox="0 0 80 80" className="spin-slow w-full h-full">
                 <circle
@@ -802,21 +1142,21 @@ const DoctorDetailsPage = () => {
               </svg>
             </div>
 
-            <div className="relative flex flex-col gap-6 px-8 py-10 md:flex-row md:items-center md:px-10">
-              {/* Left — doctor info */}
-              <div className="flex flex-1 flex-col gap-6 sm:flex-row sm:items-center">
+            <div className="relative flex flex-col gap-4 px-4 py-5 sm:px-8 sm:py-8 md:flex-row md:items-center md:gap-6">
+              {/* Doctor identity */}
+              <div className="flex flex-1 items-center gap-4">
                 {/* Avatar */}
                 <div className="relative flex-shrink-0">
-                  <div className="h-28 w-28 overflow-hidden rounded-3xl ring-4 ring-white/40 shadow-xl">
+                  <div className="h-20 w-20 sm:h-28 sm:w-28 overflow-hidden rounded-2xl sm:rounded-3xl ring-2 sm:ring-4 ring-white/40 shadow-lg">
                     <DoctorAvatar
                       src={doctor?.userId?.profilePicture}
                       name={docName}
-                      className="h-full w-full rounded-3xl"
+                      className="h-full w-full rounded-2xl sm:rounded-3xl"
                     />
                   </div>
-                  <span className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg ring-2 ring-white">
+                  <span className="absolute -bottom-1.5 -right-1.5 flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg ring-2 ring-white">
                     <svg
-                      className="h-4 w-4"
+                      className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -832,47 +1172,26 @@ const DoctorDetailsPage = () => {
                 </div>
 
                 {/* Text */}
-                <div>
-                  <div className="mb-3 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300 backdrop-blur-sm">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 pulse-dot" />
-                      Verified Doctor
+                      Verified
                     </span>
-                    <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold capitalize text-white backdrop-blur-sm">
-                      {doctor?.consultationMode}
-                    </span>
-                    <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+                    <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-[10px] font-bold capitalize text-white">
                       {doctor?.department?.name}
                     </span>
                   </div>
-                  <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl">
+                  <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold leading-tight text-white">
                     Dr. {docName}
                   </h1>
-                  <p className="mt-1 text-base font-semibold text-blue-200">
+                  <p className="mt-0.5 text-sm font-semibold text-blue-200">
                     {doctor?.specialization}
                   </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <div className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-2 backdrop-blur-sm">
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <div className="inline-flex items-center gap-1.5 rounded-xl bg-white/10 px-2.5 py-1.5">
                       <svg
-                        className="h-4 w-4 text-blue-200"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
-                        />
-                      </svg>
-                      <span className="text-sm font-semibold text-white">
-                        {doctor?.qualification}
-                      </span>
-                    </div>
-                    <div className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-2 backdrop-blur-sm">
-                      <svg
-                        className="h-4 w-4 text-blue-200"
+                        className="h-3.5 w-3.5 text-blue-200"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -884,98 +1203,72 @@ const DoctorDetailsPage = () => {
                           d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
                         />
                       </svg>
-                      <span className="text-sm font-semibold text-white">
-                        {doctor?.experience} yrs exp.
+                      <span className="text-xs font-semibold text-white">
+                        {doctor?.experience}y exp
                       </span>
                     </div>
-                    <div className="inline-flex items-center gap-2 rounded-2xl bg-amber-400/20 px-4 py-2 backdrop-blur-sm">
+                    <div className="inline-flex items-center gap-1.5 rounded-xl bg-amber-400/20 px-2.5 py-1.5">
                       <Stars rating={avgRating} />
-                      <span className="text-sm font-bold text-amber-300">
+                      <span className="text-xs font-bold text-amber-300">
                         {avgRating.toFixed(1)}
                       </span>
-                      <span className="text-xs text-blue-200">
-                        ({totalReviews})
+                    </div>
+                    {/* qualification chip — hidden on very small screens */}
+                    <div className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-white/10 px-2.5 py-1.5">
+                      <span className="text-xs font-semibold text-white">
+                        {doctor?.qualification}
                       </span>
                     </div>
                   </div>
                 </div>
+
+                {/* Fee — desktop inline */}
+                <div className="hidden sm:flex flex-col items-end flex-shrink-0">
+                  <div className="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur-md ring-1 ring-white/20 text-right">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-blue-200">
+                      Fee
+                    </p>
+                    <p className="text-3xl font-extrabold text-white">
+                      ₹{doctor?.consultationFee}
+                    </p>
+                    <p className="text-[10px] capitalize text-blue-200">
+                      {doctor?.consultationMode}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Right — fee + illustration */}
-              <div className="flex flex-col items-start gap-4 lg:items-end">
-                <div className="rounded-2xl bg-white/15 px-6 py-5 backdrop-blur-md ring-1 ring-white/20">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-200">
+              {/* Fee strip — mobile only */}
+              <div className="sm:hidden flex items-center justify-between rounded-2xl bg-white/15 px-4 py-2.5 backdrop-blur-sm ring-1 ring-white/20">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-blue-200">
                     Consultation Fee
                   </p>
-                  <p className="mt-1 text-4xl font-extrabold text-white">
+                  <p className="text-2xl font-extrabold text-white">
                     ₹{doctor?.consultationFee}
                   </p>
-                  <p className="mt-1 text-xs capitalize text-blue-200">
-                    {doctor?.consultationMode} · available now
-                  </p>
                 </div>
-                <div className="hidden h-44 w-52 lg:block relative">
-                  <HeroIllustration />
-                </div>
+                <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs font-bold text-emerald-300 capitalize">
+                  {doctor?.consultationMode}
+                </span>
+              </div>
+
+              {/* Illustration — large desktop only */}
+              <div className="hidden lg:block h-44 w-52 flex-shrink-0 relative">
+                <HeroIllustration />
               </div>
             </div>
           </div>
 
-          {/* ── BODY ────────────────────────────────────────────────────────── */}
-          <div className="grid gap-6 xl:grid-cols-[1fr_390px]">
-            {/* Left column */}
-            <div className="space-y-6">
-              {/* About */}
+          {/* ── BODY ── */}
+          <div className="grid gap-4 sm:gap-5 xl:grid-cols-[1fr_390px]">
+            {/* Main column */}
+            <div className="space-y-4 sm:space-y-5">
+              {/* 1 — Date & Slot */}
               <Card delay="d1">
                 <SHead
-                  title="About Doctor"
-                  sub="Professional background and expertise"
-                  icon={
-                    <svg
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-                      />
-                    </svg>
-                  }
-                />
-                <p className="text-sm leading-7 text-slate-600">
-                  {doctor?.bio}
-                </p>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {[
-                    { l: 'Qualification', v: doctor?.qualification },
-                    { l: 'Department', v: doctor?.department?.name },
-                    { l: 'Specialization', v: doctor?.specialization },
-                    { l: 'Experience', v: `${doctor?.experience} years` },
-                  ].map((f) => (
-                    <div
-                      key={f.l}
-                      className="field-pill rounded-2xl bg-slate-50 p-4"
-                    >
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                        {f.l}
-                      </p>
-                      <p className="mt-1.5 text-sm font-semibold text-slate-800">
-                        {f.v || '—'}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Date & Slots */}
-              <Card delay="d2">
-                <SHead
-                  title="Select Appointment"
-                  sub="Choose a date and available time slot"
+                  title="Pick a Date & Slot"
+                  sub="Choose when you'd like to visit"
                   icon={
                     <svg
                       className="h-5 w-5"
@@ -992,92 +1285,75 @@ const DoctorDetailsPage = () => {
                     </svg>
                   }
                 />
-                <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-                  {/* Date */}
-                  <div>
-                    <label className="mb-2 block text-sm font-bold text-slate-800">
-                      Choose Date
-                    </label>
-                    <input
-                      type="date"
-                      min={new Date().toISOString().split('T')[0]}
-                      value={selectedDate}
-                      onChange={(e) => generateSlots(e.target.value)}
-                      className="input-field h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700"
-                    />
-                    {selectedDate && (
-                      <p className="mt-2 text-xs text-slate-500">
-                        {new Date(selectedDate).toLocaleDateString('en-US', {
-                          weekday: 'long',
-                          day: 'numeric',
-                          month: 'long',
-                        })}
+
+                <StyledDatePicker
+                  value={selectedDate}
+                  onChange={generateSlots}
+                />
+
+                {/* Slot grid */}
+                <div className="mt-5">
+                  <h3 className="mb-3 text-sm font-bold text-slate-800 flex items-center gap-2">
+                    Available Slots
+                    {availableSlots.length > 0 && (
+                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700">
+                        {availableSlots.length} open
+                      </span>
+                    )}
+                  </h3>
+
+                  {!selectedDate ? (
+                    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-8 text-center">
+                      <svg
+                        className="mb-2 h-7 w-7 text-slate-300"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6.75 3v2.25M17.25 3v2.25M3.75 8.25h16.5M4.5 21h15a1.5 1.5 0 001.5-1.5V6.75a1.5 1.5 0 00-1.5-1.5h-15A1.5 1.5 0 003 6.75V19.5A1.5 1.5 0 004.5 21z"
+                        />
+                      </svg>
+                      <p className="text-sm text-slate-400">
+                        Select a date above to see slots
                       </p>
-                    )}
-                  </div>
-                  {/* Slots */}
-                  <div>
-                    <h3 className="mb-3 text-sm font-bold text-slate-800">
-                      Available Slots
-                      {availableSlots.length > 0 && (
-                        <span className="ml-2 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700">
-                          {availableSlots.length} open
-                        </span>
-                      )}
-                    </h3>
-                    {!selectedDate ? (
-                      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-10 text-center">
-                        <svg
-                          className="mb-2 h-8 w-8 text-slate-300"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={1.5}
+                    </div>
+                  ) : availableSlots.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-red-200 bg-red-50 py-8 text-center">
+                      <p className="text-sm font-semibold text-red-500">
+                        {leaveMessage === 'Doctor is on leave on selected date'
+                          ? '🏖 Doctor is on leave'
+                          : 'No slots available'}
+                      </p>
+                      <p className="mt-1 text-xs text-red-400">
+                        Please try another date
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                      {availableSlots.map((slot) => (
+                        <button
+                          key={slot}
+                          onClick={() => setSelectedSlot(slot)}
+                          className={`slot-btn h-11 rounded-2xl border text-xs sm:text-sm font-bold
+                            ${selectedSlot === slot ? 'slot-active border-blue-600 bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700'}`}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6.75 3v2.25M17.25 3v2.25M3.75 8.25h16.5M4.5 21h15a1.5 1.5 0 001.5-1.5V6.75a1.5 1.5 0 00-1.5-1.5h-15A1.5 1.5 0 003 6.75V19.5A1.5 1.5 0 004.5 21z"
-                          />
-                        </svg>
-                        <p className="text-sm text-slate-400">
-                          Pick a date to see slots
-                        </p>
-                      </div>
-                    ) : availableSlots.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-red-200 bg-red-50 py-10 text-center">
-                        <p className="text-sm font-semibold text-red-500">
-                          {leaveMessage ===
-                          'Doctor is on leave on selected date'
-                            ? 'Doctor is on leave on selected date'
-                            : 'No Slots Today'}
-                        </p>
-                        <p className="mt-1 text-xs text-red-400">
-                          Try a different date
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                        {availableSlots.map((slot) => (
-                          <button
-                            key={slot}
-                            onClick={() => setSelectedSlot(slot)}
-                            className={`slot-btn h-11 rounded-2xl border text-sm font-bold ${selectedSlot === slot ? 'slot-active border-blue-600 bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700'}`}
-                          >
-                            {slot}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                          {slot}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </Card>
 
-              {/* Booking form */}
-              <Card delay="d3">
+              {/* 2 — Consultation Details */}
+              <Card delay="d2">
                 <SHead
-                  title="Book Appointment"
-                  sub="Add consultation preference and visit reason"
+                  title="Consultation Details"
+                  sub="Type and reason for your visit"
                   icon={
                     <svg
                       className="h-5 w-5"
@@ -1094,18 +1370,18 @@ const DoctorDetailsPage = () => {
                     </svg>
                   }
                 />
-                <div className="space-y-5">
-                  {/* Type tabs */}
+                <div className="space-y-4">
                   <div>
-                    <label className="mb-3 block text-sm font-bold text-slate-800">
+                    <label className="mb-2 block text-sm font-bold text-slate-800">
                       Consultation Type
                     </label>
-                    <div className="inline-flex gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1">
+                    <div className="inline-flex gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1 w-full sm:w-auto">
                       {['online', 'offline'].map((t) => (
                         <button
                           key={t}
                           onClick={() => setConsType(t)}
-                          className={`type-tab inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold capitalize ${consType === t ? 'active' : 'text-slate-500 hover:text-slate-700'}`}
+                          className={`type-tab flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold capitalize
+                            ${consType === t ? 'active' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                           {t === 'online' ? (
                             <svg
@@ -1132,7 +1408,7 @@ const DoctorDetailsPage = () => {
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"
+                                d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21"
                               />
                             </svg>
                           )}
@@ -1141,15 +1417,14 @@ const DoctorDetailsPage = () => {
                       ))}
                     </div>
                   </div>
-                  {/* Reason */}
                   <div>
                     <label className="mb-2 block text-sm font-bold text-slate-800">
-                      Reason For Visit
+                      Reason for Visit
                     </label>
                     <textarea
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
-                      rows={4}
+                      rows={3}
                       placeholder="Describe your symptoms or reason for visiting…"
                       className="input-field w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400"
                     />
@@ -1160,21 +1435,117 @@ const DoctorDetailsPage = () => {
                 </div>
               </Card>
 
-              {/* Reviews */}
+              {/* 3 — About */}
+              <Card delay="d3">
+                <SHead
+                  title="About Doctor"
+                  sub="Background and expertise"
+                  icon={
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                      />
+                    </svg>
+                  }
+                />
+                <p className="text-sm leading-7 text-slate-600">
+                  {doctor?.bio}
+                </p>
+                <div className="mt-4 grid grid-cols-2 gap-2.5">
+                  {[
+                    { l: 'Qualification', v: doctor?.qualification },
+                    { l: 'Department', v: doctor?.department?.name },
+                    { l: 'Specialization', v: doctor?.specialization },
+                    { l: 'Experience', v: `${doctor?.experience} years` },
+                  ].map((f) => (
+                    <div
+                      key={f.l}
+                      className="field-pill rounded-2xl bg-slate-50 p-3.5"
+                    >
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                        {f.l}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-slate-800">
+                        {f.v || '—'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* 4 — Contact */}
+              <Card delay="d3">
+                <h2 className="mb-4 text-lg font-bold text-slate-900">
+                  Contact
+                </h2>
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                  {[
+                    {
+                      l: 'Email',
+                      v: doctor?.userId?.email,
+                      icon: 'M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75',
+                    },
+                    {
+                      l: 'Phone',
+                      v: doctor?.userId?.phoneNumber,
+                      icon: 'M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z',
+                    },
+                  ].map((f) => (
+                    <div
+                      key={f.l}
+                      className="flex items-start gap-3 rounded-2xl bg-slate-50 p-3.5 transition hover:bg-blue-50/50"
+                    >
+                      <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-500">
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1.8}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d={f.icon}
+                          />
+                        </svg>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                          {f.l}
+                        </p>
+                        <p className="mt-0.5 break-all text-sm font-semibold text-slate-800">
+                          {f.v || '—'}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* 5 — Reviews (last) */}
               <Card delay="d4">
-                <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900">
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                       Patient Reviews
                     </h2>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
                       Feedback from verified patients
                     </p>
                   </div>
-                  <div className="inline-flex items-center gap-3 rounded-2xl bg-amber-50 px-4 py-3">
+                  <div className="inline-flex items-center gap-3 rounded-2xl bg-amber-50 px-4 py-2.5">
                     <Stars rating={avgRating} size="lg" />
                     <div>
-                      <p className="text-lg font-extrabold leading-none text-amber-700">
+                      <p className="text-base font-extrabold leading-none text-amber-700">
                         {avgRating.toFixed(1)}
                       </p>
                       <p className="text-xs text-amber-600">
@@ -1184,9 +1555,9 @@ const DoctorDetailsPage = () => {
                   </div>
                 </div>
                 {reviews.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-12 text-center">
+                  <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-10 text-center">
                     <svg
-                      className="mb-3 h-10 w-10 text-slate-300"
+                      className="mb-3 h-9 w-9 text-slate-300"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -1215,7 +1586,7 @@ const DoctorDetailsPage = () => {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center gap-3">
-                            <div className="h-11 w-11 flex-shrink-0 overflow-hidden rounded-2xl ring-1 ring-slate-200">
+                            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-2xl ring-1 ring-slate-200">
                               <DoctorAvatar
                                 src={rev?.patientId?.profilePicture}
                                 name={rev?.patientId?.fullName || '?'}
@@ -1223,17 +1594,17 @@ const DoctorDetailsPage = () => {
                               />
                             </div>
                             <div>
-                              <p className="font-bold text-slate-900">
+                              <p className="text-sm font-bold text-slate-900">
                                 {rev?.patientId?.fullName}
                               </p>
                               <Stars rating={rev.rating} />
                             </div>
                           </div>
-                          <span className="flex-shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">
+                          <span className="flex-shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700">
                             {rev.rating}/5
                           </span>
                         </div>
-                        <p className="mt-3 text-sm leading-6 text-slate-600">
+                        <p className="mt-2.5 text-sm leading-6 text-slate-600">
                           {rev.comment}
                         </p>
                       </div>
@@ -1243,9 +1614,8 @@ const DoctorDetailsPage = () => {
               </Card>
             </div>
 
-            {/* Right sidebar */}
-            <aside className="space-y-6 xl:sticky xl:top-24 xl:h-fit">
-              {/* Summary */}
+            {/* ── Desktop Sidebar ── */}
+            <aside className="hidden xl:block space-y-5 xl:sticky xl:top-24 xl:h-fit">
               <Card
                 delay="d2"
                 className="shadow-[0_16px_48px_rgba(15,23,42,0.1)]"
@@ -1269,8 +1639,7 @@ const DoctorDetailsPage = () => {
                     </svg>
                   }
                 />
-
-                {/* Doctor mini card */}
+                {/* Mini doctor card */}
                 <div className="flex items-center gap-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
                   <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl ring-2 ring-white shadow">
                     <DoctorAvatar
@@ -1294,7 +1663,6 @@ const DoctorDetailsPage = () => {
                     </div>
                   </div>
                 </div>
-
                 {/* Summary rows */}
                 <div className="mt-5 space-y-3 border-t border-slate-100 pt-5">
                   {[
@@ -1302,7 +1670,9 @@ const DoctorDetailsPage = () => {
                     {
                       label: 'Date',
                       val: selectedDate
-                        ? new Date(selectedDate).toLocaleDateString('en-US', {
+                        ? new Date(
+                            selectedDate + 'T00:00:00',
+                          ).toLocaleDateString('en-US', {
                             day: 'numeric',
                             month: 'short',
                             year: 'numeric',
@@ -1323,7 +1693,6 @@ const DoctorDetailsPage = () => {
                       </span>
                     </div>
                   ))}
-                  {/* Fee */}
                   <div className="flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 px-4 py-4">
                     <span className="text-sm font-bold text-blue-200">
                       Total Fee
@@ -1333,8 +1702,7 @@ const DoctorDetailsPage = () => {
                     </span>
                   </div>
                 </div>
-
-                {/* Progress bar */}
+                {/* Progress */}
                 <div className="mt-5 flex items-center gap-2">
                   {[
                     { label: 'Date', done: !!selectedDate },
@@ -1356,126 +1724,59 @@ const DoctorDetailsPage = () => {
                     </div>
                   ))}
                 </div>
-                {/* ── Payment Method Selector (offline consultations only) ── */}
+                {/* Payment (offline) */}
                 {consType === 'offline' && (
                   <div className="mt-5">
                     <label className="block text-sm font-bold text-slate-800 mb-3">
                       Payment Method
                     </label>
                     <div className="flex gap-3">
-                      {/* Online */}
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMode('online')}
-                        className={`flex-1 flex items-center gap-3 rounded-2xl border-2 px-4 py-3 transition-all ${
-                          paymentMode === 'online'
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-slate-200 bg-white hover:border-blue-200'
-                        }`}
-                      >
-                        <div
-                          className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl ${
-                            paymentMode === 'online'
-                              ? 'bg-blue-600'
-                              : 'bg-slate-100'
-                          }`}
+                      {[
+                        { k: 'online', l: 'Pay Online', color: 'blue' },
+                        { k: 'clinic', l: 'Pay at Clinic', color: 'teal' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.k}
+                          type="button"
+                          onClick={() => setPaymentMode(opt.k)}
+                          className={`pay-btn flex-1 flex items-center gap-2 rounded-2xl border-2 px-3 py-2.5
+                            ${paymentMode === opt.k ? (opt.color === 'blue' ? 'border-blue-600 bg-blue-50' : 'border-teal-600 bg-teal-50') : 'border-slate-200 bg-white'}`}
                         >
-                          <svg
-                            className={`h-5 w-5 ${paymentMode === 'online' ? 'text-white' : 'text-slate-500'}`}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
+                          <div
+                            className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl ${paymentMode === opt.k ? (opt.color === 'blue' ? 'bg-blue-600' : 'bg-teal-600') : 'bg-slate-100'}`}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M2.25 8.25h19.5M3.75 6h16.5A1.5 1.5 0 0121.75 7.5v9A1.5 1.5 0 0120.25 18H3.75A1.5 1.5 0 012.25 16.5v-9A1.5 1.5 0 013.75 6z"
-                            />
-                          </svg>
-                        </div>
-                        <div className="text-left">
+                            <svg
+                              className={`h-4 w-4 ${paymentMode === opt.k ? 'text-white' : 'text-slate-500'}`}
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              {opt.k === 'online' ? (
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M2.25 8.25h19.5M3.75 6h16.5A1.5 1.5 0 0121.75 7.5v9A1.5 1.5 0 0120.25 18H3.75A1.5 1.5 0 012.25 16.5v-9A1.5 1.5 0 013.75 6z"
+                                />
+                              ) : (
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21"
+                                />
+                              )}
+                            </svg>
+                          </div>
                           <p
-                            className={`text-sm font-bold ${paymentMode === 'online' ? 'text-blue-700' : 'text-slate-700'}`}
+                            className={`text-xs font-bold ${paymentMode === opt.k ? (opt.color === 'blue' ? 'text-blue-700' : 'text-teal-700') : 'text-slate-700'}`}
                           >
-                            Pay Online
+                            {opt.l}
                           </p>
-                        </div>
-                        {paymentMode === 'online' && (
-                          <svg
-                            className="ml-auto h-5 w-5 text-blue-600 flex-shrink-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2.5}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                        )}
-                      </button>
-
-                      {/* Pay at Clinic */}
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMode('clinic')}
-                        className={`flex-1 flex items-center gap-3 rounded-2xl border-2 px-4 py-3 transition-all ${
-                          paymentMode === 'clinic'
-                            ? 'border-teal-600 bg-teal-50'
-                            : 'border-slate-200 bg-white hover:border-teal-200'
-                        }`}
-                      >
-                        <div
-                          className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl ${
-                            paymentMode === 'clinic'
-                              ? 'bg-teal-600'
-                              : 'bg-slate-100'
-                          }`}
-                        >
-                          <svg
-                            className={`h-5 w-5 ${paymentMode === 'clinic' ? 'text-white' : 'text-slate-500'}`}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21"
-                            />
-                          </svg>
-                        </div>
-                        <div className="text-left">
-                          <p
-                            className={`text-sm font-bold ${paymentMode === 'clinic' ? 'text-teal-700' : 'text-slate-700'}`}
-                          >
-                            Pay at Clinic
-                          </p>
-                        </div>
-                        {paymentMode === 'clinic' && (
-                          <svg
-                            className="ml-auto h-5 w-5 text-teal-600 flex-shrink-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2.5}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                        )}
-                      </button>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
-
                 <button
                   onClick={handleBooking}
                   disabled={bookLoading}
@@ -1523,7 +1824,7 @@ const DoctorDetailsPage = () => {
                 </p>
               </Card>
 
-              {/* Contact */}
+              {/* Contact — desktop sidebar */}
               <Card delay="d3">
                 <h2 className="mb-5 text-lg font-bold text-slate-900">
                   Contact Information
@@ -1577,7 +1878,19 @@ const DoctorDetailsPage = () => {
         </div>
       </div>
 
-      {/* Draggable WhatsApp */}
+      {/* Mobile sticky book bar */}
+      <StickyBookBar
+        doctor={doctor}
+        selectedDate={selectedDate}
+        selectedSlot={selectedSlot}
+        reason={reason}
+        consType={consType}
+        paymentMode={paymentMode}
+        setPaymentMode={setPaymentMode}
+        onBook={handleBooking}
+        bookLoading={bookLoading}
+      />
+
       {doctor?.userId?.phoneNumber && (
         <DraggableWhatsApp phone={doctor.userId.phoneNumber} />
       )}
