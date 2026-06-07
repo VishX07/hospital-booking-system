@@ -1176,7 +1176,6 @@ const AppointmentsPage = () => {
   useEffect(() => {
     fetchAppointments();
   }, [statusFilter]);
-
   /* ── Cancel handlers ── */
   const openCancelModal = (id) => {
     setSelectedApptId(id);

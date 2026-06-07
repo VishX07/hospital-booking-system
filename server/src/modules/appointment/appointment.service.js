@@ -11,6 +11,7 @@ import {
   sendAppointmentRejectedEmail,
 } from '../../services/email.service.js';
 import Payment from '../../models/Payment.model.js';
+
 const DAYS = [
   'sunday',
   'monday',
@@ -181,10 +182,10 @@ export const bookAppointmentService = async (userId, appointmentData) => {
     title: 'New Appointment Request',
 
     message: `${patient.fullName}
- requested an appointment
- on ${appointmentDate}
- at ${timeSlot}.
- Reason: ${reasonForVisit}`,
+  requested an appointment
+  on ${appointmentDate}
+  at ${timeSlot}.
+  Reason: ${reasonForVisit}`,
 
     type: 'appointment',
 
@@ -529,12 +530,12 @@ export const cancelAppointmentService = async (
       title: 'Appointment Cancelled',
 
       message: `${patient.fullName}
- cancelled appointment
- on ${appointment.appointmentDate.toLocaleDateString()}
- at ${appointment.timeSlot}.
+  cancelled appointment
+  on ${appointment.appointmentDate.toLocaleDateString()}
+  at ${appointment.timeSlot}.
 
- Reason:
- ${cancelReason}`,
+  Reason:
+  ${cancelReason}`,
 
       type: 'appointment',
 
@@ -554,12 +555,12 @@ export const cancelAppointmentService = async (
       title: 'Appointment Cancelled',
 
       message: `Dr ${appointmentDoctor.userId.fullName} cancelled your
- appointment on
- ${appointment.appointmentDate.toLocaleDateString()}
- at ${appointment.timeSlot}.
+  appointment on
+  ${appointment.appointmentDate.toLocaleDateString()}
+  at ${appointment.timeSlot}.
 
- Reason:
- ${cancelReason}`,
+  Reason:
+  ${cancelReason}`,
 
       type: 'appointment',
 
@@ -652,15 +653,15 @@ export const confirmAppointmentService = async (userId, appointmentId) => {
     message:
       appointment.consultationType === 'online'
         ? `Your online appointment on
-${appointment.appointmentDate.toLocaleDateString()}
-at ${appointment.timeSlot}
-has been confirmed.
+  ${appointment.appointmentDate.toLocaleDateString()}
+  at ${appointment.timeSlot}
+  has been confirmed.
 
-Meeting link is ready.`
+  Meeting link is ready.`
         : `Your appointment on
-${appointment.appointmentDate.toLocaleDateString()}
-at ${appointment.timeSlot}
-has been confirmed.`,
+  ${appointment.appointmentDate.toLocaleDateString()}
+  at ${appointment.timeSlot}
+  has been confirmed.`,
 
     type: 'appointment',
 
@@ -746,12 +747,12 @@ export const rejectAppointmentService = async (
     title: 'Appointment Rejected',
 
     message: `Your appointment on
-  ${appointment.appointmentDate.toLocaleDateString()}
-  at ${appointment.timeSlot}
-  was rejected.
+    ${appointment.appointmentDate.toLocaleDateString()}
+    at ${appointment.timeSlot}
+    was rejected.
 
-  Reason:
-  ${cancelReason}`,
+    Reason:
+    ${cancelReason}`,
 
     type: 'appointment',
 
@@ -810,9 +811,9 @@ export const completeAppointmentService = async (userId, appointmentId) => {
     title: 'Appointment Completed',
 
     message: `Your appointment on
-  ${appointment.appointmentDate.toLocaleDateString()}
-  at ${appointment.timeSlot}
-  has been completed.`,
+    ${appointment.appointmentDate.toLocaleDateString()}
+    at ${appointment.timeSlot}
+    has been completed.`,
 
     type: 'appointment',
 
@@ -820,6 +821,7 @@ export const completeAppointmentService = async (userId, appointmentId) => {
       appointmentId: appointment._id,
     },
   });
+
   // 8. Return response
   return {
     message: 'Appointment completed successfully.',
@@ -1078,15 +1080,15 @@ export const rescheduleAppointmentService = async (
     title: 'Appointment Reschedule Request',
 
     message: `${patient.fullName}
-  requested to reschedule appointment.
+    requested to reschedule appointment.
 
-  Old:
-  ${new Date(oldDate).toLocaleDateString()}
-  at ${oldTime}
+    Old:
+    ${new Date(oldDate).toLocaleDateString()}
+    at ${oldTime}
 
-  New:
-  ${new Date(appointmentDate).toLocaleDateString()}
-  at ${timeSlot}`,
+    New:
+    ${new Date(appointmentDate).toLocaleDateString()}
+    at ${timeSlot}`,
 
     type: 'appointment',
 

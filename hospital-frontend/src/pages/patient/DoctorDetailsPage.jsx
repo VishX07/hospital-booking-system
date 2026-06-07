@@ -498,7 +498,7 @@ const DraggableWhatsApp = ({ phone }) => {
       state.current.down = false;
       ref.current?.classList.remove('is-dragging');
       if (!state.current.moved)
-        window.open(`https://wa.me/${phone}`, '_blank', 'noreferrer');
+        window.open(`https://wa.me/+91${phone}`, '_blank', 'noreferrer');
     };
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);

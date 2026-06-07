@@ -185,7 +185,7 @@ export const sendAppointmentConfirmedEmail = async ({
     `;
   //end meeting link section
 
-  await transporter.sendMail({
+  await sendEmail({
     from: `"Alpha Hospital"<${process.env.EMAIL_USER}>`,
 
     to: email,
@@ -276,7 +276,7 @@ export const sendAppointmentCancelledEmail = async ({
 }) => {
   const isDoctorCancelled = cancelledBy === 'doctor';
 
-  await transporter.sendMail({
+  await sendEmail({
     from: `"Alpha Hospital" <${process.env.EMAIL_USER}>`,
 
     to: email,
@@ -400,7 +400,7 @@ export const sendAppointmentRejectedEmail = async ({
   doctorName,
   rejectionReason,
 }) => {
-  await transporter.sendMail({
+  await sendEmail({
     from: `"Alpha Hospital" <${process.env.EMAIL_USER}>`,
 
     to: email,
@@ -520,7 +520,7 @@ export const sendPrescriptionEmail = async ({
   pdfBuffer,
   prescriptionId,
 }) => {
-  await transporter.sendMail({
+  await sendEmaill({
     from: `"Alpha Hospital" <${process.env.EMAIL_USER}>`,
 
     to: email,
@@ -663,7 +663,7 @@ export const sendAppointmentReminderEmail = async ({
         </p>
       `;
 
-  await transporter.sendMail({
+  await sendEmail({
     from: `"Alpha Hospital" <${process.env.EMAIL_USER}>`,
 
     to: email,

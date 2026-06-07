@@ -1,55 +1,43 @@
 import { create } from 'zustand';
-
 import { getCurrentUser, logout } from '../api/auth.api.js';
 
 const useAuthStore = create((set) => ({
   user: null,
   doctorProfile: null,
   isAuthenticated: false,
-
   loading: true,
 
-  // Set user after login
-  setUser: (user) =>
-    set({
-      user,
-      isAuthenticated: true,
-    }),
+  setUser: (user) => set({ user, isAuthenticated: true }),
 
-  // Get logged-in user
   fetchCurrentUser: async () => {
     try {
       const response = await getCurrentUser();
+      const userData = response.data.user;
+      const doctorProfile = response.data.doctorProfile || null;
 
       set({
-        user: response.data.user,
-        doctorProfile: response.data.doctorProfile || null,
+        user: userData,
+        doctorProfile,
         isAuthenticated: true,
-
         loading: false,
       });
     } catch {
       set({
         user: null,
-
         isAuthenticated: false,
-
         loading: false,
       });
     }
   },
 
-  // Logout
   logoutUser: async () => {
     try {
       await logout();
     } catch {
-      // ignore api error
+      // ignore
     }
-
     set({
       user: null,
-
       isAuthenticated: false,
     });
   },

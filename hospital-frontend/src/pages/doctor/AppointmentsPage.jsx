@@ -1415,6 +1415,7 @@ const DoctorAppointmentsPage = () => {
     fetchAppointments();
   }, [fetchAppointments]);
 
+
   const handleConfirm = async (id) => {
     setLoadingAction(id);
     try {

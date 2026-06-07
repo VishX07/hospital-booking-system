@@ -15,10 +15,10 @@ import ROUTES from '../../constants/routes.js';
 ───────────────────────────────────────────── */
 const ROLE_TOKENS = {
   doctor: {
-    accent: '#0d9488', // teal-600
-    accentLight: '#f0fdfa', // teal-50
-    accentMid: '#ccfbf1', // teal-100
-    accentText: '#0f766e', // teal-700
+    accent: '#0d9488',
+    accentLight: '#f0fdfa',
+    accentMid: '#ccfbf1',
+    accentText: '#0f766e',
     accentRing: 'rgba(13,148,136,0.18)',
     dot: '#0d9488',
     gradient: 'from-teal-500 to-cyan-500',
@@ -324,9 +324,7 @@ function NotificationPanel({
                 >
                   <div className="flex-shrink-0 mt-1.5">
                     <span
-                      className={`block h-2 w-2 rounded-full transition-colors ${
-                        isUnread ? 'bg-blue-500' : 'bg-slate-300'
-                      }`}
+                      className={`block h-2 w-2 rounded-full transition-colors ${isUnread ? 'bg-blue-500' : 'bg-slate-300'}`}
                     />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -377,7 +375,6 @@ function ProfileDropdown({
     >
       {/* Profile hero */}
       <div className="relative px-6 pb-5 pt-6">
-        {/* Background gradient */}
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{
@@ -385,7 +382,6 @@ function ProfileDropdown({
           }}
         />
         <div className="relative flex flex-col items-center text-center">
-          {/* Avatar with upload button */}
           <div className="relative inline-block">
             {user?.profilePicture ? (
               <img
@@ -430,8 +426,6 @@ function ProfileDropdown({
           <p className="text-xs text-slate-500 truncate max-w-full mt-0.5 font-medium">
             {user?.email || 'No email available'}
           </p>
-
-          {/* Role badge */}
           <div
             className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold capitalize border"
             style={{
@@ -449,23 +443,20 @@ function ProfileDropdown({
         </div>
       </div>
 
-      {/* Divider */}
       <div className="h-px bg-slate-100 mx-4" />
 
-      {/* Menu items */}
       <div className="p-2">
         <button
           type="button"
           onClick={onSettings}
-          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 transition-all hover:text-slate-900 group"
-          style={{ '--hover-bg': tokens.accentLight }}
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 transition-all hover:text-slate-900"
           onMouseEnter={(e) =>
             (e.currentTarget.style.background = tokens.accentLight)
           }
           onMouseLeave={(e) => (e.currentTarget.style.background = '')}
         >
           <span
-            className="h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors"
+            className="h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ background: tokens.accentMid, color: tokens.accent }}
           >
             <SettingsIcon className="h-4 w-4" />
@@ -483,7 +474,7 @@ function ProfileDropdown({
           onMouseLeave={(e) => (e.currentTarget.style.background = '')}
         >
           <span
-            className="h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors"
+            className="h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ background: tokens.accentMid, color: tokens.accent }}
           >
             <LockIcon className="h-4 w-4" />
@@ -524,7 +515,6 @@ const Navbar = ({ onOpenSidebar }) => {
   const dropdownRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Notifications
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
@@ -536,7 +526,7 @@ const Navbar = ({ onOpenSidebar }) => {
     (n) => !n?.isRead && !n?.read,
   ).length;
 
-  // ── Notification handlers (unchanged logic) ──────────────
+  // ── Fetch notifications ───────────────────────────────────
   const fetchNotifications = async () => {
     try {
       setNotificationsLoading(true);
@@ -556,10 +546,24 @@ const Navbar = ({ onOpenSidebar }) => {
     }
   };
 
-  const handleBellClick = async () => {
+  // ── Auto-fetch on mount so badge shows immediately ────────
+  useEffect(() => {
+    if (user) fetchNotifications();
+  }, [user]);
+
+  // ── Optional: re-fetch every 60 seconds in background ────
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(fetchNotifications, 60_000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  // ── Bell click — open panel (data already loaded) ────────
+  const handleBellClick = () => {
     setNotificationOpen((cur) => !cur);
     setDropdownOpen(false);
-    if (!notificationOpen) await fetchNotifications();
+    // Refresh data when opening panel in case it's stale
+    if (!notificationOpen) fetchNotifications();
   };
 
   const handleNotificationClick = async (notification) => {
@@ -573,9 +577,8 @@ const Navbar = ({ onOpenSidebar }) => {
         );
       }
       const appointmentId = notification?.metadata?.appointmentId;
-      if (appointmentId) {
+      if (appointmentId)
         navigate({ pathname: `/patient/appointments/${appointmentId}` });
-      }
     } catch {
       toast.error('Something went wrong');
     }
@@ -609,7 +612,7 @@ const Navbar = ({ onOpenSidebar }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ── Photo handlers (unchanged logic) ──────────────────────
+  // ── Photo handlers ─────────────────────────────────────────
   const handlePhotoClick = () => fileInputRef.current?.click();
 
   const handlePhotoChange = async (e) => {
@@ -630,7 +633,7 @@ const Navbar = ({ onOpenSidebar }) => {
     }
   };
 
-  // ── Navigation handlers (unchanged logic) ─────────────────
+  // ── Navigation handlers ────────────────────────────────────
   const handleChangePassword = () => {
     setDropdownOpen(false);
     navigate(ROUTES.CHANGE_PASSWORD);
@@ -659,14 +662,9 @@ const Navbar = ({ onOpenSidebar }) => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
 
-        .navbar-root {
-          font-family: 'DM Sans', sans-serif;
-        }
-        .navbar-title {
-          font-family: 'Sora', sans-serif;
-        }
+        .navbar-root { font-family: 'DM Sans', sans-serif; }
+        .navbar-title { font-family: 'Sora', sans-serif; }
 
-        /* Dropdown animations */
         .notification-panel,
         .profile-dropdown {
           animation: dropdown-in 0.18s cubic-bezier(0.16,1,0.3,1) both;
@@ -676,23 +674,14 @@ const Navbar = ({ onOpenSidebar }) => {
           to   { opacity: 1; transform: scale(1)    translateY(0); }
         }
 
-        /* Bell pulse on unread */
-        .bell-pulse::after {
-          content: '';
-          position: absolute;
-          inset: -3px;
-          border-radius: inherit;
-          animation: bell-ring 2.4s ease-in-out infinite;
-          border: 2px solid var(--pulse-color);
-          opacity: 0;
+        /* Badge pop-in on first render */
+        @keyframes badge-pop {
+          0%   { transform: scale(0); opacity: 0; }
+          70%  { transform: scale(1.2); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
         }
-        @keyframes bell-ring {
-          0%,100% { opacity: 0; transform: scale(1); }
-          40%      { opacity: 0.35; transform: scale(1.18); }
-          60%      { opacity: 0; transform: scale(1.28); }
-        }
+        .badge-pop { animation: badge-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
 
-        /* Smooth focus rings */
         button:focus-visible {
           outline: 2px solid;
           outline-color: var(--focus-ring, #2563eb);
@@ -713,17 +702,15 @@ const Navbar = ({ onOpenSidebar }) => {
       >
         {/* ── Left: hamburger + branding ─────────────────── */}
         <div className="flex items-center gap-3 min-w-0">
-          {/* Mobile sidebar toggle */}
           <button
             type="button"
             onClick={onOpenSidebar}
-            className="lg:hidden flex-shrink-0 h-9 w-9  flex items-center justify-center rounded-xl border  bg-white text-slate-500 border-none transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700 active:scale-95"
+            className="lg:hidden flex-shrink-0 h-9 w-9 flex items-center justify-center rounded-xl border bg-white text-slate-500 border-none transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700 active:scale-95"
             aria-label="Open sidebar"
           >
             <MenuIcon className="h-[18px] w-[18px]" />
           </button>
 
-          {/* Branding */}
           <div className="min-w-0 ml-3 sm:ml-0">
             <p
               className="text-[10px] font-bold uppercase tracking-[0.14em]"
@@ -739,7 +726,7 @@ const Navbar = ({ onOpenSidebar }) => {
 
         {/* ── Right: actions ─────────────────────────────── */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Role badge — hidden on small mobile */}
+          {/* Role badge */}
           <div
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold capitalize border"
             style={{
@@ -757,7 +744,6 @@ const Navbar = ({ onOpenSidebar }) => {
 
           {/* Notification bell */}
           <div ref={notificationRef} className="relative static sm:relative">
-            {' '}
             <button
               type="button"
               onClick={handleBellClick}
@@ -779,15 +765,19 @@ const Navbar = ({ onOpenSidebar }) => {
               aria-expanded={notificationOpen}
             >
               <BellIcon className="h-[18px] w-[18px]" />
+
+              {/* Badge — shows immediately on load */}
               {unreadCount > 0 && (
                 <span
-                  className="absolute -top-1 -right-1 h-[18px] min-w-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold text-white ring-2 ring-white"
+                  key={unreadCount} // re-triggers animation when count changes
+                  className="badge-pop absolute -top-1 -right-1 h-[18px] min-w-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold text-white ring-2 ring-white"
                   style={{ background: '#ef4444' }}
                 >
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
             </button>
+
             {notificationOpen && (
               <NotificationPanel
                 notifications={notifications}
@@ -819,7 +809,6 @@ const Navbar = ({ onOpenSidebar }) => {
               aria-label="Profile menu"
               aria-expanded={dropdownOpen}
             >
-              {/* Avatar */}
               {user?.profilePicture ? (
                 <img
                   src={user.profilePicture}
@@ -834,8 +823,6 @@ const Navbar = ({ onOpenSidebar }) => {
                   {userInitial}
                 </div>
               )}
-
-              {/* Name + role — hidden on small mobile */}
               <div className="hidden md:block text-left min-w-0">
                 <p className="text-[13px] font-semibold text-slate-800 truncate max-w-[140px] leading-tight">
                   {user?.fullName || 'User'}
@@ -844,11 +831,8 @@ const Navbar = ({ onOpenSidebar }) => {
                   {user?.role || 'user'}
                 </p>
               </div>
-
               <ChevronDownIcon
-                className={`hidden sm:block h-3.5 w-3.5 text-slate-400 transition-transform duration-200 flex-shrink-0 ${
-                  dropdownOpen ? 'rotate-180' : ''
-                }`}
+                className={`hidden sm:block h-3.5 w-3.5 text-slate-400 transition-transform duration-200 flex-shrink-0 ${dropdownOpen ? 'rotate-180' : ''}`}
               />
             </button>
 
