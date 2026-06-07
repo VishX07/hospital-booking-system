@@ -44,7 +44,7 @@ export const login = asyncHandler(async (req, res) => {
 
   const response = await loginService(identifier, password);
 
-  // setTokenCookie(res, response.token);
+  setTokenCookie(res, response.token);
 
   res.status(200).json({
     success: true,
