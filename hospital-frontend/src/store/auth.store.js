@@ -34,6 +34,7 @@ const useAuthStore = create((set) => ({
     try {
       await logout();
       localStorage.removeItem('accessToken');
+      navigate('/login');
     } catch {
       // ignore
     }
