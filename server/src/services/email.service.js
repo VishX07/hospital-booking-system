@@ -520,7 +520,7 @@ export const sendPrescriptionEmail = async ({
   pdfBuffer,
   prescriptionId,
 }) => {
-  await sendEmaill({
+  await sendEmail({
     from: `"Alpha Hospital" <${process.env.EMAIL_USER}>`,
 
     to: email,
