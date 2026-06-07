@@ -1,18 +1,7 @@
 /**
  * ============================================================
  *  AppointmentsPage.jsx  — Patient Appointments
- *
- *  Sections:
- *   1. Styles & Keyframes
- *   2. Utility helpers (status config, avatar fallback)
- *   3. Hero Illustration SVG
- *   4. Stat Cards
- *   5. Filter Chips
- *   6. Skeleton Loader
- *   7. Appointment Card
- *   8. Empty State
- *   9. Cancel Modal
- *  10. Main Page Component
+ *  Mobile-first redesign with full responsive polish
  * ============================================================
  */
 
@@ -27,30 +16,29 @@ import {
 import DashboardLayout from '../../components/layout/DashboardLayout.jsx';
 
 /* ================================================================
-   1. STYLES & KEYFRAMES
+   STYLES
    ================================================================ */
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600&display=swap');
 
   .appts-root { font-family: 'DM Sans', sans-serif; }
   .appts-root h1,.appts-root h2,.appts-root h3 { font-family: 'Sora', sans-serif; }
 
-  /* ── Animation keyframes ── */
   @keyframes fadeUp {
-    from { opacity:0; transform:translateY(20px); }
+    from { opacity:0; transform:translateY(16px); }
     to   { opacity:1; transform:translateY(0); }
   }
   @keyframes float1 {
     0%,100% { transform:translateY(0) rotate(-1.5deg); }
-    50%      { transform:translateY(-12px) rotate(1.5deg); }
+    50%      { transform:translateY(-10px) rotate(1.5deg); }
   }
   @keyframes float2 {
     0%,100% { transform:translateY(0) rotate(1deg); }
-    50%      { transform:translateY(-8px) rotate(-1deg); }
+    50%      { transform:translateY(-7px) rotate(-1deg); }
   }
   @keyframes float3 {
     0%,100% { transform:translateY(0); }
-    50%      { transform:translateY(-6px); }
+    50%      { transform:translateY(-5px); }
   }
   @keyframes pulse-dot {
     0%,100% { opacity:1; transform:scale(1); }
@@ -62,19 +50,22 @@ const styles = `
     100% { background-position:200% center; }
   }
   @keyframes modalIn {
-    from { opacity:0; transform:scale(.95) translateY(12px); }
+    from { opacity:0; transform:scale(.95) translateY(10px); }
     to   { opacity:1; transform:scale(1) translateY(0); }
   }
   @keyframes overlayIn { from{opacity:0} to{opacity:1} }
   @keyframes cardIn {
-    from { opacity:0; transform:translateY(18px) scale(.98); }
+    from { opacity:0; transform:translateY(14px) scale(.99); }
     to   { opacity:1; transform:translateY(0) scale(1); }
   }
+  @keyframes slideUp {
+    from { opacity:0; transform:translateY(100%); }
+    to   { opacity:1; transform:translateY(0); }
+  }
 
-  /* ── Animation utility classes ── */
-  .anim-fade-up { animation:fadeUp .55s ease both; }
-  .d1{animation-delay:.06s} .d2{animation-delay:.12s} .d3{animation-delay:.18s}
-  .d4{animation-delay:.24s} .d5{animation-delay:.30s} .d6{animation-delay:.36s}
+  .anim-fade-up { animation:fadeUp .5s ease both; }
+  .d1{animation-delay:.05s} .d2{animation-delay:.10s} .d3{animation-delay:.15s}
+  .d4{animation-delay:.20s} .d5{animation-delay:.25s} .d6{animation-delay:.30s}
 
   .float-1 { animation:float1 5.5s ease-in-out infinite; }
   .float-2 { animation:float2 4.8s ease-in-out infinite .7s; }
@@ -82,16 +73,16 @@ const styles = `
   .pulse-dot { animation:pulse-dot 2s ease-in-out infinite; }
   .spin-slow  { animation:spin-slow 22s linear infinite; }
 
-  /* ── Appointment card ── */
   .appt-card {
-    transition: transform .25s cubic-bezier(.34,1.2,.64,1), box-shadow .25s ease;
+    transition: transform .22s cubic-bezier(.34,1.2,.64,1), box-shadow .22s ease;
   }
-  .appt-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 50px rgba(29,78,216,.12);
+  @media (hover:hover) {
+    .appt-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(29,78,216,.11);
+    }
   }
 
-  /* ── Glass panel (used inside cards) ── */
   .glass-panel {
     background: rgba(255,255,255,0.55);
     backdrop-filter: blur(12px);
@@ -99,41 +90,28 @@ const styles = `
     border: 1px solid rgba(255,255,255,0.75);
   }
 
-  /* ── Stat card ── */
-  .stat-card {
-    transition: transform .22s ease, box-shadow .22s ease;
-  }
-  .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 14px 36px rgba(0,0,0,.09);
+  .stat-card { transition: transform .2s ease, box-shadow .2s ease; }
+  @media (hover:hover) {
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.08); }
   }
 
-  /* ── Filter chip ── */
-  .filter-chip {
-    transition: all .18s ease;
-  }
-  .filter-chip:hover:not(.chip-active) {
-    transform: translateY(-1px);
-  }
+  .filter-chip { transition: all .16s ease; -webkit-tap-highlight-color: transparent; }
+  .filter-chip:active { transform: scale(.96); }
   .chip-active {
     background: #2563eb !important;
     color: white !important;
     border-color: #2563eb !important;
-    box-shadow: 0 4px 16px rgba(37,99,235,.3);
-    transform: translateY(-1px);
+    box-shadow: 0 3px 12px rgba(37,99,235,.3);
   }
 
-  /* ── Action buttons ── */
-  .btn-action {
-    transition: all .18s ease;
-  }
-  .btn-action:hover { transform:translateY(-2px); }
+  .btn-action { transition: all .16s ease; -webkit-tap-highlight-color: transparent; }
+  .btn-action:active { transform: scale(.97); }
 
-  /* ── Cancel modal ── */
+  /* Mobile bottom sheet modal */
   .modal-overlay { animation: overlayIn .2s ease both; }
-  .modal-panel    { animation: modalIn .3s cubic-bezier(.34,1.2,.64,1) both; }
+  .modal-sheet   { animation: slideUp .32s cubic-bezier(.34,1.2,.64,1) both; }
+  .modal-panel   { animation: modalIn .28s cubic-bezier(.34,1.2,.64,1) both; }
 
-  /* ── Input focus ── */
   .rx-input:focus {
     outline:none;
     border-color:#3b82f6;
@@ -141,22 +119,30 @@ const styles = `
     background:white;
   }
 
-  /* ── Skeleton shimmer ── */
   .shimmer-bg {
     background: linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);
     background-size: 200% 100%;
     animation: shimmer 1.4s infinite;
   }
 
-  /* ── Card entry animation (staggered via inline delay) ── */
-  .card-entry { animation: cardIn .5s ease both; }
+  .card-entry { animation: cardIn .45s ease both; }
+
+  /* Hide scrollbar on filter row */
+  .filter-scroll { scrollbar-width:none; -ms-overflow-style:none; }
+  .filter-scroll::-webkit-scrollbar { display:none; }
+
+  /* Touch-friendly tap targets */
+  @media (max-width: 640px) {
+    .mobile-action-btn {
+      min-height: 44px;
+      font-size: 13px;
+    }
+  }
 `;
 
 /* ================================================================
-   2. UTILITY HELPERS
+   STATUS CONFIG
    ================================================================ */
-
-/* Status visual config — centralized so every component shares it */
 const STATUS_CONFIG = {
   pending: {
     bg: 'bg-amber-50',
@@ -164,6 +150,7 @@ const STATUS_CONFIG = {
     dot: 'bg-amber-400',
     border: 'border-amber-100',
     cardBg: 'from-amber-50/60',
+    pill: 'bg-amber-100 text-amber-800',
   },
   confirmed: {
     bg: 'bg-emerald-50',
@@ -171,6 +158,7 @@ const STATUS_CONFIG = {
     dot: 'bg-emerald-500',
     border: 'border-emerald-100',
     cardBg: 'from-emerald-50/60',
+    pill: 'bg-emerald-100 text-emerald-800',
   },
   completed: {
     bg: 'bg-blue-50',
@@ -178,6 +166,7 @@ const STATUS_CONFIG = {
     dot: 'bg-blue-500',
     border: 'border-blue-100',
     cardBg: 'from-blue-50/60',
+    pill: 'bg-blue-100 text-blue-800',
   },
   cancelled: {
     bg: 'bg-red-50',
@@ -185,6 +174,7 @@ const STATUS_CONFIG = {
     dot: 'bg-red-400',
     border: 'border-red-100',
     cardBg: 'from-red-50/40',
+    pill: 'bg-red-100 text-red-800',
   },
   rejected: {
     bg: 'bg-slate-100',
@@ -192,12 +182,15 @@ const STATUS_CONFIG = {
     dot: 'bg-slate-400',
     border: 'border-slate-200',
     cardBg: 'from-slate-50/60',
+    pill: 'bg-slate-100 text-slate-700',
   },
 };
 const getStatus = (s = '') =>
   STATUS_CONFIG[s.toLowerCase()] ?? STATUS_CONFIG.rejected;
 
-/* Avatar fallback palettes */
+/* ================================================================
+   AVATAR
+   ================================================================ */
 const AVATAR_PALETTES = [
   { bg: '#eff6ff', fg: '#1d4ed8', border: '#bfdbfe' },
   { bg: '#eef2ff', fg: '#4338ca', border: '#c7d2fe' },
@@ -206,7 +199,6 @@ const AVATAR_PALETTES = [
   { bg: '#fff7ed', fg: '#c2410c', border: '#fed7aa' },
 ];
 
-/* Doctor avatar with graceful image-error fallback */
 const DoctorAvatar = ({ src, name = '', idx = 0, className = '' }) => {
   const [err, setErr] = useState(false);
   const initials = name
@@ -227,12 +219,17 @@ const DoctorAvatar = ({ src, name = '', idx = 0, className = '' }) => {
     );
   return (
     <div
-      className={`flex items-center justify-center font-bold text-lg select-none ${className}`}
-      style={{ background: p.bg, color: p.fg, border: `2px solid ${p.border}` }}
+      className={`flex items-center justify-center font-bold select-none ${className}`}
+      style={{
+        background: p.bg,
+        color: p.fg,
+        border: `2px solid ${p.border}`,
+        fontSize: 'clamp(14px,3vw,18px)',
+      }}
     >
       {initials || (
         <svg
-          className="h-6 w-6 opacity-40"
+          className="h-5 w-5 opacity-40"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -250,12 +247,10 @@ const DoctorAvatar = ({ src, name = '', idx = 0, className = '' }) => {
 };
 
 /* ================================================================
-   3. HERO ILLUSTRATION
-   Floating SVG calendar/medical scene with badge overlays.
+   HERO — compact on mobile, full on desktop
    ================================================================ */
 const HeroIllustration = () => (
   <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-    {/* ── Main SVG scene ── */}
     <svg
       viewBox="0 0 300 250"
       xmlns="http://www.w3.org/2000/svg"
@@ -267,13 +262,7 @@ const HeroIllustration = () => (
           <stop offset="0%" stopColor="#1d4ed8" stopOpacity=".9" />
           <stop offset="100%" stopColor="#1e40af" />
         </linearGradient>
-        <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#00b4d8" />
-          <stop offset="100%" stopColor="#2196f3" />
-        </linearGradient>
       </defs>
-
-      {/* Outer decorative ring */}
       <circle
         cx="150"
         cy="125"
@@ -284,8 +273,6 @@ const HeroIllustration = () => (
         strokeDasharray="6 5"
         className="spin-slow"
       />
-
-      {/* Main calendar widget */}
       <rect
         x="55"
         y="35"
@@ -295,7 +282,6 @@ const HeroIllustration = () => (
         fill="white"
         opacity=".95"
       />
-      {/* Calendar header */}
       <rect
         x="55"
         y="35"
@@ -305,7 +291,6 @@ const HeroIllustration = () => (
         fill="url(#calGrad)"
       />
       <rect x="55" y="57" width="190" height="18" fill="url(#calGrad)" />
-      {/* Header text */}
       <text
         x="150"
         y="52"
@@ -318,7 +303,6 @@ const HeroIllustration = () => (
       >
         JUNE 2026
       </text>
-      {/* Day labels */}
       {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
         <text
           key={i}
@@ -333,7 +317,6 @@ const HeroIllustration = () => (
           {d}
         </text>
       ))}
-      {/* Date grid */}
       {[
         [1, 2, 3, 4, 5, 6, 7],
         [8, 9, 10, 11, 12, 13, 14],
@@ -375,7 +358,6 @@ const HeroIllustration = () => (
               >
                 {day}
               </text>
-              {/* Appointment dot indicator */}
               {hasAppt && (
                 <circle
                   cx={72 + ci * 26}
@@ -388,8 +370,6 @@ const HeroIllustration = () => (
           );
         }),
       )}
-
-      {/* Stethoscope top-right decoration */}
       <circle
         cx="248"
         cy="68"
@@ -423,65 +403,11 @@ const HeroIllustration = () => (
         strokeWidth="2.8"
       />
       <circle cx="237" cy="79" r="2.5" fill="rgba(255,255,255,0.45)" />
-
-      {/* Pills bottom-left */}
-      <rect
-        x="28"
-        y="170"
-        width="26"
-        height="12"
-        rx="6"
-        fill="rgba(255,255,255,0.25)"
-      />
-      <line
-        x1="41"
-        y1="170"
-        x2="41"
-        y2="182"
-        stroke="rgba(255,255,255,0.45)"
-        strokeWidth="1.5"
-      />
-      <rect
-        x="28"
-        y="188"
-        width="26"
-        height="12"
-        rx="6"
-        fill="rgba(255,255,255,0.18)"
-      />
-      <line
-        x1="41"
-        y1="188"
-        x2="41"
-        y2="200"
-        stroke="rgba(255,255,255,0.35)"
-        strokeWidth="1.5"
-      />
-
-      {/* Medical cross top-left */}
-      <rect
-        x="34"
-        y="42"
-        width="9"
-        height="26"
-        rx="4"
-        fill="rgba(255,255,255,0.28)"
-      />
-      <rect
-        x="25"
-        y="51"
-        width="27"
-        height="9"
-        rx="4"
-        fill="rgba(255,255,255,0.28)"
-      />
     </svg>
-
-    {/* ── Floating badge: Upcoming ── */}
     <svg
       viewBox="0 0 118 42"
       xmlns="http://www.w3.org/2000/svg"
-      className="float-2 absolute top-2 right-0 w-28"
+      className="float-2 absolute top-2 right-0 w-24"
       aria-hidden="true"
     >
       <rect width="118" height="42" rx="12" fill="white" opacity=".95" />
@@ -526,12 +452,10 @@ const HeroIllustration = () => (
         Today
       </text>
     </svg>
-
-    {/* ── Floating badge: Confirmed ── */}
     <svg
       viewBox="0 0 112 38"
       xmlns="http://www.w3.org/2000/svg"
-      className="float-3 absolute bottom-8 left-0 w-28"
+      className="float-3 absolute bottom-6 left-0 w-24"
       aria-hidden="true"
     >
       <rect width="112" height="38" rx="11" fill="white" opacity=".92" />
@@ -566,45 +490,11 @@ const HeroIllustration = () => (
         Appointment Set
       </text>
     </svg>
-
-    {/* ── Floating badge: Active dot ── */}
-    <svg
-      viewBox="0 0 96 34"
-      xmlns="http://www.w3.org/2000/svg"
-      className="float-1 absolute top-16 left-1 w-24"
-      style={{ animationDelay: '1.1s' }}
-      aria-hidden="true"
-    >
-      <rect width="96" height="34" rx="10" fill="white" opacity=".9" />
-      <rect
-        width="96"
-        height="34"
-        rx="10"
-        fill="none"
-        stroke="#e0f2fe"
-        strokeWidth="1"
-      />
-      <circle cx="14" cy="17" r="4.5" fill="#22c55e" className="pulse-dot" />
-      <text
-        x="25"
-        y="13"
-        fontFamily="sans-serif"
-        fontSize="7"
-        fill="#0f172a"
-        fontWeight="700"
-      >
-        ONLINE
-      </text>
-      <text x="25" y="25" fontFamily="sans-serif" fontSize="6.5" fill="#64748b">
-        Available now
-      </text>
-    </svg>
   </div>
 );
 
 /* ================================================================
-   4. STAT CARDS
-   Summary numbers shown inside the hero.
+   STAT CARDS — horizontal scroll strip
    ================================================================ */
 const STAT_DEFS = [
   {
@@ -627,8 +517,8 @@ const STAT_DEFS = [
   },
   {
     key: 'completed',
-    label: 'Completed',
-    icon: 'M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-4.5',
+    label: 'Done',
+    icon: 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
     color: 'blue',
   },
   {
@@ -639,18 +529,10 @@ const STAT_DEFS = [
   },
 ];
 const STAT_COLOR = {
-  blue: { iconBg: 'bg-blue-100', icon: 'text-blue-600', num: 'text-blue-700' },
-  amber: {
-    iconBg: 'bg-amber-100',
-    icon: 'text-amber-600',
-    num: 'text-amber-600',
-  },
-  emerald: {
-    iconBg: 'bg-emerald-100',
-    icon: 'text-emerald-600',
-    num: 'text-emerald-700',
-  },
-  red: { iconBg: 'bg-red-100', icon: 'text-red-500', num: 'text-red-600' },
+  blue: { iconBg: 'bg-blue-500/20', icon: 'text-blue-200' },
+  amber: { iconBg: 'bg-amber-500/20', icon: 'text-amber-200' },
+  emerald: { iconBg: 'bg-emerald-500/20', icon: 'text-emerald-200' },
+  red: { iconBg: 'bg-red-400/20', icon: 'text-red-200' },
 };
 
 const StatCards = ({ appointments }) => {
@@ -663,37 +545,32 @@ const StatCards = ({ appointments }) => {
   };
   return (
     <div
-      className="flex gap-2 mt-4 overflow-x-auto pb-1 scrollbar-hide"
+      className="filter-scroll flex gap-2 mt-3 overflow-x-auto pb-1"
       style={{ scrollbarWidth: 'none' }}
     >
-      {' '}
       {STAT_DEFS.map((s, i) => {
         const c = STAT_COLOR[s.color];
         return (
           <div
             key={s.key}
-            className={`stat-card glass-panel rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 sm:gap-3 flex-shrink-0 min-w-[90px] sm:min-w-[110px] anim-fade-up d${i + 1}`}
+            className={`stat-card glass-panel rounded-2xl px-3 py-2.5 flex items-center gap-2 flex-shrink-0 anim-fade-up d${i + 1}`}
           >
-            <div
-              className={`rounded-lg sm:rounded-xl p-1.5 sm:p-2 ${c.iconBg} flex-shrink-0`}
-            >
+            <div className={`rounded-xl p-1.5 ${c.iconBg} flex-shrink-0`}>
               <svg
-                className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${c.icon}`}
+                className={`h-3.5 w-3.5 ${c.icon}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                strokeWidth={1.8}
+                strokeWidth={2}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d={s.icon} />
               </svg>
             </div>
             <div>
-              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-blue-200">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-blue-200 leading-none">
                 {s.label}
               </p>
-              <p
-                className={`text-base sm:text-xl font-extrabold text-white mt-0`}
-              >
+              <p className="text-lg font-extrabold text-white leading-tight">
                 {counts[s.key]}
               </p>
             </div>
@@ -705,7 +582,7 @@ const StatCards = ({ appointments }) => {
 };
 
 /* ================================================================
-   5. FILTER CHIPS
+   FILTER CHIPS — horizontal scroll, mobile-friendly
    ================================================================ */
 const FILTERS = [
   'all',
@@ -719,20 +596,21 @@ const FILTERS = [
 ];
 
 const FilterChips = ({ active, onChange }) => (
-  /* Glass panel container */
-  <div
-    className="anim-fade-up d2 glass-panel rounded-2xl p-3 shadow-sm"
-    style={{
-      background: 'rgba(255,255,255,0.7)',
-      backdropFilter: 'blur(16px)',
-    }}
-  >
-    <div className="flex flex-wrap gap-2">
+  <div className="anim-fade-up d2">
+    {/* Label */}
+    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 px-1">
+      Filter by
+    </p>
+    {/* Scrollable chips */}
+    <div
+      className="filter-scroll flex gap-2 overflow-x-auto pb-1"
+      style={{ scrollbarWidth: 'none' }}
+    >
       {FILTERS.map((f) => (
         <button
           key={f}
           onClick={() => onChange(f)}
-          className={`filter-chip rounded-full border px-4 py-1.5 text-sm font-semibold capitalize
+          className={`filter-chip flex-shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold capitalize whitespace-nowrap
             ${
               active === f
                 ? 'chip-active'
@@ -747,35 +625,38 @@ const FilterChips = ({ active, onChange }) => (
 );
 
 /* ================================================================
-   6. SKELETON LOADER
+   SKELETON LOADER — mobile-optimized
    ================================================================ */
 const SkeletonCard = () => (
-  <div className="rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm">
-    <div className="flex items-center gap-4 mb-5">
-      <div className="shimmer-bg h-16 w-16 rounded-2xl flex-shrink-0" />
-      <div className="flex-1 space-y-2">
-        <div className="shimmer-bg h-4 w-48 rounded-full" />
-        <div className="shimmer-bg h-3 w-32 rounded-full" />
-        <div className="shimmer-bg h-5 w-20 rounded-full mt-1" />
+  <div className="rounded-3xl border border-slate-200 bg-white/80 overflow-hidden shadow-sm">
+    <div className="p-4 border-b border-slate-100">
+      <div className="flex items-center gap-3">
+        <div className="shimmer-bg h-12 w-12 rounded-2xl flex-shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="shimmer-bg h-3.5 w-36 rounded-full" />
+          <div className="shimmer-bg h-3 w-24 rounded-full" />
+        </div>
+        <div className="shimmer-bg h-6 w-20 rounded-full" />
       </div>
-      <div className="shimmer-bg h-10 w-20 rounded-2xl" />
     </div>
-    <div className="grid grid-cols-3 gap-2 mb-4">
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="shimmer-bg h-14 rounded-2xl" />
-      ))}
-    </div>
-    <div className="shimmer-bg h-3 w-full rounded-full mb-1" />
-    <div className="shimmer-bg h-3 w-3/4 rounded-full" />
-    <div className="flex gap-2 mt-5">
-      <div className="shimmer-bg h-10 flex-1 rounded-2xl" />
-      <div className="shimmer-bg h-10 flex-1 rounded-2xl" />
+    <div className="p-4 space-y-3">
+      <div className="grid grid-cols-3 gap-2">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="shimmer-bg h-14 rounded-2xl" />
+        ))}
+      </div>
+      <div className="shimmer-bg h-3 w-full rounded-full" />
+      <div className="shimmer-bg h-3 w-3/4 rounded-full" />
+      <div className="flex gap-2 pt-1">
+        <div className="shimmer-bg h-10 flex-1 rounded-2xl" />
+        <div className="shimmer-bg h-10 flex-1 rounded-2xl" />
+      </div>
     </div>
   </div>
 );
 
 /* ================================================================
-   7. APPOINTMENT CARD
+   APPOINTMENT CARD — mobile-first layout
    ================================================================ */
 const AppointmentCard = ({ appointment, index, onCancelClick }) => {
   const s = getStatus(appointment.status);
@@ -789,23 +670,22 @@ const AppointmentCard = ({ appointment, index, onCancelClick }) => {
         month: 'short',
       })
     : '—';
-
   const canCancel = ['pending', 'confirmed'].includes(appointment.status);
 
   return (
     <div
       className={`appt-card card-entry rounded-3xl border bg-white shadow-sm overflow-hidden ${s.border}`}
-      style={{ animationDelay: `${0.05 + (index % 8) * 0.07}s` }}
+      style={{ animationDelay: `${0.05 + (index % 8) * 0.065}s` }}
     >
-      {/* ── Card top strip (status-tinted) ── */}
+      {/* ── Header ── */}
       <div
-        className={`bg-gradient-to-r ${s.cardBg} to-transparent px-5 pt-4 pb-3 border-b ${s.border}`}
+        className={`bg-gradient-to-r ${s.cardBg} to-transparent px-4 pt-4 pb-3 border-b ${s.border}`}
       >
-        <div className="flex items-center justify-between gap-4">
-          {/* Doctor info */}
+        <div className="flex items-center justify-between gap-3">
+          {/* Doctor */}
           <div className="flex items-center gap-3 min-w-0">
             <div className="relative flex-shrink-0">
-              <div className="h-14 w-14 overflow-hidden rounded-2xl ring-2 ring-white shadow">
+              <div className="h-12 w-12 sm:h-14 sm:w-14 overflow-hidden rounded-2xl ring-2 ring-white shadow-sm">
                 <DoctorAvatar
                   src={docPhoto}
                   name={docName}
@@ -813,24 +693,22 @@ const AppointmentCard = ({ appointment, index, onCancelClick }) => {
                   className="h-full w-full rounded-2xl"
                 />
               </div>
-              {/* Online dot for confirmed */}
               {appointment.status === 'confirmed' && (
-                <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white pulse-dot" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-white pulse-dot" />
               )}
             </div>
             <div className="min-w-0">
-              <h3 className="font-bold text-slate-900 truncate">
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base truncate leading-tight">
                 Dr. {docName}
               </h3>
-              <p className="text-sm text-blue-600 font-medium truncate">
+              <p className="text-xs text-blue-600 font-medium truncate">
                 {deptName}
               </p>
             </div>
           </div>
-
           {/* Status badge */}
           <span
-            className={`flex-shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${s.bg} ${s.text}`}
+            className={`flex-shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${s.bg} ${s.text}`}
           >
             <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
             <span className="capitalize">{appointment.status}</span>
@@ -838,10 +716,10 @@ const AppointmentCard = ({ appointment, index, onCancelClick }) => {
         </div>
       </div>
 
-      {/* ── Card body ── */}
-      <div className="px-5 py-4">
-        {/* Meta fields — 3 glass pills */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
+      {/* ── Body ── */}
+      <div className="px-4 py-3.5">
+        {/* Meta pills — 3 columns */}
+        <div className="grid grid-cols-3 gap-2 mb-3">
           {[
             {
               label: 'Date',
@@ -861,57 +739,56 @@ const AppointmentCard = ({ appointment, index, onCancelClick }) => {
           ].map((f) => (
             <div
               key={f.label}
-              className="glass-panel rounded-2xl px-2.5 py-2.5 text-center"
-              style={{ background: 'rgba(248,250,252,0.8)' }}
+              className="rounded-2xl bg-slate-50 border border-slate-100 px-2 py-2.5 text-center"
             >
               <svg
-                className="h-3.5 w-3.5 text-blue-400 mx-auto mb-1"
+                className="h-3 w-3 text-blue-400 mx-auto mb-1"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                strokeWidth={1.8}
+                strokeWidth={2}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d={f.icon} />
               </svg>
-              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">
+              <p className="text-[8px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">
                 {f.label}
               </p>
-              <p className="text-xs font-bold text-slate-800 leading-tight capitalize truncate">
+              <p className="text-[11px] font-bold text-slate-800 leading-tight capitalize truncate">
                 {f.val || '—'}
               </p>
             </div>
           ))}
         </div>
 
-        {/* Fee row (if present) */}
+        {/* Fee */}
         {appointment.amount && (
-          <div className="flex items-center justify-between rounded-2xl bg-blue-50 px-3.5 py-2.5 mb-3">
+          <div className="flex items-center justify-between rounded-2xl bg-blue-50 px-3 py-2 mb-2.5">
             <span className="text-xs font-semibold text-blue-500">
               Consultation Fee
             </span>
-            <span className="text-base font-extrabold text-blue-700">
+            <span className="text-sm font-extrabold text-blue-700">
               ₹{appointment.amount}
             </span>
           </div>
         )}
 
-        {/* Reason for visit */}
+        {/* Reason */}
         {appointment.reasonForVisit && (
-          <div className="rounded-2xl bg-slate-50 border border-slate-100 px-3.5 py-2.5 mb-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
-              Reason for Visit
+          <div className="rounded-2xl bg-slate-50 border border-slate-100 px-3 py-2.5 mb-3">
+            <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
+              Reason
             </p>
-            <p className="text-sm text-slate-700 leading-snug line-clamp-2">
+            <p className="text-xs text-slate-700 leading-snug line-clamp-2">
               {appointment.reasonForVisit}
             </p>
           </div>
         )}
 
-        {/* ── Action buttons ── */}
-        <div className="flex gap-2.5">
+        {/* Actions */}
+        <div className="flex gap-2">
           <Link
             to={`/patient/appointments/${appointment._id}`}
-            className="btn-action flex-1 inline-flex items-center justify-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50"
+            className="btn-action mobile-action-btn flex-1 inline-flex items-center justify-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50"
           >
             <svg
               className="h-3.5 w-3.5"
@@ -933,12 +810,10 @@ const AppointmentCard = ({ appointment, index, onCancelClick }) => {
             </svg>
             Details
           </Link>
-
           {canCancel && (
             <button
               onClick={() => onCancelClick(appointment._id)}
-              className="btn-action flex-1 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-red-600 px-3 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-red-700"
-              style={{ transition: 'all .18s ease' }}
+              className="btn-action mobile-action-btn flex-1 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-red-600 px-3 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-red-700"
             >
               <svg
                 className="h-3.5 w-3.5"
@@ -963,15 +838,14 @@ const AppointmentCard = ({ appointment, index, onCancelClick }) => {
 };
 
 /* ================================================================
-   8. EMPTY STATE
+   EMPTY STATE
    ================================================================ */
 const EmptyState = ({ filter }) => (
-  <div className="col-span-2 flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white/70 py-20 text-center shadow-sm backdrop-blur-sm">
-    {/* Mini SVG illustration */}
+  <div className="col-span-2 flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white/70 py-16 text-center shadow-sm backdrop-blur-sm">
     <svg
       viewBox="0 0 120 100"
       xmlns="http://www.w3.org/2000/svg"
-      className="float-2 mb-5 w-28"
+      className="float-2 mb-4 w-24"
       aria-hidden="true"
     >
       <ellipse cx="60" cy="88" rx="46" ry="10" fill="#e2e8f0" />
@@ -1007,16 +881,15 @@ const EmptyState = ({ filter }) => (
         📅
       </text>
     </svg>
-    <h3 className="text-xl font-bold text-slate-800">No Appointments Found</h3>
-    <p className="mt-2 max-w-xs text-sm text-slate-500">
+    <h3 className="text-lg font-bold text-slate-800">No Appointments Found</h3>
+    <p className="mt-1.5 max-w-[260px] text-sm text-slate-500 leading-snug">
       {filter === 'all'
-        ? "You haven't booked any appointments yet. Find a doctor and get started."
-        : `No ${filter} appointments to show right now.`}
+        ? "You haven't booked any appointments yet."
+        : `No ${filter} appointments right now.`}
     </p>
     <Link
       to="/doctors"
-      className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-blue-700 hover:-translate-y-0.5"
-      style={{ transition: 'all .18s ease' }}
+      className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md btn-action"
     >
       <svg
         className="h-4 w-4"
@@ -1037,26 +910,31 @@ const EmptyState = ({ filter }) => (
 );
 
 /* ================================================================
-   9. CANCEL MODAL
-   A polished glass modal with red accent header.
+   CANCEL MODAL — bottom sheet on mobile, centered on desktop
    ================================================================ */
 const CancelModal = ({ open, reason, onChange, onClose, onConfirm }) => {
   if (!open) return null;
   return (
     <div
-      className="modal-overlay fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="modal-overlay fixed inset-0 z-50 flex items-end sm:items-center justify-center"
       style={{ background: 'rgba(10,22,40,0.6)', backdropFilter: 'blur(6px)' }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="modal-panel w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-[0_24px_80px_rgba(0,0,0,.3)]">
-        {/* Modal header */}
-        <div className="bg-gradient-to-r from-red-600 to-rose-500 px-6 py-5">
+      {/* Bottom sheet on mobile, centered card on sm+ */}
+      <div className="modal-sheet sm:modal-panel w-full sm:max-w-md overflow-hidden rounded-t-3xl sm:rounded-3xl bg-white shadow-[0_24px_80px_rgba(0,0,0,.3)]">
+        {/* Drag handle — mobile only */}
+        <div className="sm:hidden flex justify-center pt-3 pb-1">
+          <div className="h-1 w-10 rounded-full bg-slate-200" />
+        </div>
+
+        {/* Header */}
+        <div className="bg-gradient-to-r from-red-600 to-rose-500 px-5 py-4 sm:px-6 sm:py-5">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white/20">
+            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-2xl bg-white/20">
               <svg
-                className="h-5 w-5 text-white"
+                className="h-4 w-4 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -1070,42 +948,40 @@ const CancelModal = ({ open, reason, onChange, onClose, onConfirm }) => {
               </svg>
             </span>
             <div>
-              <h2 className="text-lg font-bold text-white">
+              <h2 className="text-base font-bold text-white">
                 Cancel Appointment
               </h2>
-              <p className="text-sm text-red-100">
+              <p className="text-xs text-red-100">
                 This action cannot be undone.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Modal body */}
-        <div className="p-6 space-y-4">
+        {/* Body */}
+        <div className="p-5 space-y-4">
           <div>
             <label className="block text-sm font-bold text-slate-800 mb-2">
-              Reason for Cancellation <span className="text-red-500">*</span>
+              Reason <span className="text-red-500">*</span>
             </label>
             <textarea
               value={reason}
               onChange={(e) => onChange(e.target.value)}
-              rows={4}
-              placeholder="Please describe why you're cancelling this appointment…"
+              rows={3}
+              placeholder="Why are you cancelling this appointment?"
               className="rx-input w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 transition"
             />
           </div>
-
-          {/* Actions */}
-          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end pt-1">
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:justify-end pt-1">
             <button
               onClick={onClose}
-              className="btn-action inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              className="btn-action mobile-action-btn inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
               Keep Appointment
             </button>
             <button
               onClick={onConfirm}
-              className="btn-action inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-red-600 px-6 text-sm font-bold text-white shadow-lg shadow-red-900/20 hover:bg-red-700"
+              className="btn-action mobile-action-btn inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 text-sm font-bold text-white shadow-lg shadow-red-900/20 hover:bg-red-700"
             >
               <svg
                 className="h-4 w-4"
@@ -1124,16 +1000,21 @@ const CancelModal = ({ open, reason, onChange, onClose, onConfirm }) => {
             </button>
           </div>
         </div>
+
+        {/* Safe area padding for mobile home bar */}
+        <div
+          className="sm:hidden h-safe-bottom"
+          style={{ height: 'env(safe-area-inset-bottom,0px)' }}
+        />
       </div>
     </div>
   );
 };
 
 /* ================================================================
-   10. MAIN PAGE COMPONENT
+   MAIN PAGE COMPONENT
    ================================================================ */
 const AppointmentsPage = () => {
-  /* ── State ── */
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -1141,7 +1022,6 @@ const AppointmentsPage = () => {
   const [selectedApptId, setSelectedApptId] = useState(null);
   const [cancelReason, setCancelReason] = useState('');
 
-  /* ── Sync filter from URL search params ── */
   const [searchParams] = useSearchParams();
   useEffect(() => {
     const s = searchParams.get('status');
@@ -1150,7 +1030,6 @@ const AppointmentsPage = () => {
     else if (t) setStatusFilter(t);
   }, [searchParams]);
 
-  /* ── Fetch appointments (re-runs on filter change) ── */
   const fetchAppointments = async () => {
     try {
       setLoading(true);
@@ -1176,7 +1055,7 @@ const AppointmentsPage = () => {
   useEffect(() => {
     fetchAppointments();
   }, [statusFilter]);
-  /* ── Cancel handlers ── */
+
   const openCancelModal = (id) => {
     setSelectedApptId(id);
     setCancelReason('');
@@ -1200,19 +1079,17 @@ const AppointmentsPage = () => {
     }
   };
 
-  /* ─────────────────────────────────────────────────────────── */
   return (
     <DashboardLayout>
       <style>{styles}</style>
 
-      <div className="appts-root min-h-screen bg-[#f0f5fb] px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl space-y-6">
-          {/* ============================================================
-              HERO SECTION
-              Dark gradient banner with illustration + stat pills.
-              ============================================================ */}
-          <div className="anim-fade-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 shadow-2xl">
-            {/* Subtle grid texture */}
+      <div className="appts-root min-h-screen bg-[#f0f5fb] px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
+        <div className="mx-auto max-w-7xl space-y-4 sm:space-y-5">
+          {/* ===================================================
+              HERO — compact on mobile, full on desktop
+              =================================================== */}
+          <div className="anim-fade-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 shadow-xl">
+            {/* Texture */}
             <div
               className="pointer-events-none absolute inset-0 opacity-[0.04]"
               style={{
@@ -1221,93 +1098,101 @@ const AppointmentsPage = () => {
                 backgroundSize: '32px 32px',
               }}
             />
-            {/* Glow orbs */}
-            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white opacity-5" />
-            <div className="pointer-events-none absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-indigo-300 opacity-10 blur-3xl" />
-            {/* Spinning decorative ring (desktop only) */}
-            <div className="pointer-events-none absolute top-4 left-4 hidden h-20 w-20 opacity-20 lg:block">
-              <svg viewBox="0 0 80 80" className="spin-slow w-full h-full">
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="36"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="1.5"
-                  strokeDasharray="6 4"
-                />
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="22"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="1"
-                  strokeDasharray="3 5"
-                />
-              </svg>
-            </div>
+            {/* Glow */}
+            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white opacity-5" />
+            <div className="pointer-events-none absolute bottom-0 left-1/4 h-36 w-36 rounded-full bg-indigo-300 opacity-10 blur-3xl" />
 
-            <div className="relative flex flex-col gap-8 px-8 py-10 md:flex-row md:items-center md:px-10">
-              {/* Left — text + stat pills */}
-              <div className="flex-1">
-                {/* Breadcrumb pill */}
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-100 backdrop-blur-sm">
-                  <svg
-                    className="h-3.5 w-3.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
+            <div className="relative px-5 py-5 sm:px-8 sm:py-8 md:py-10 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+              {/* Left — text + stats */}
+              <div className="flex-1 min-w-0">
+                {/* ── Mobile layout: row with breadcrumb + book button ── */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-100 backdrop-blur-sm">
+                    <svg
+                      className="h-3 w-3"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6.75 3v2.25M17.25 3v2.25M3.75 8.25h16.5M4.5 21h15a1.5 1.5 0 001.5-1.5V6.75a1.5 1.5 0 00-1.5-1.5h-15A1.5 1.5 0 003 6.75V19.5A1.5 1.5 0 004.5 21z"
+                      />
+                    </svg>
+                    My Appointments
+                  </div>
+                  {/* Quick book CTA — visible on mobile in hero */}
+                  <Link
+                    to="/doctors"
+                    className="btn-action inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-white/30"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6.75 3v2.25M17.25 3v2.25M3.75 8.25h16.5M4.5 21h15a1.5 1.5 0 001.5-1.5V6.75a1.5 1.5 0 00-1.5-1.5h-15A1.5 1.5 0 003 6.75V19.5A1.5 1.5 0 004.5 21z"
-                    />
-                  </svg>
-                  My Appointments
+                    <svg
+                      className="h-3 w-3"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 4.5v15m7.5-7.5h-15"
+                      />
+                    </svg>
+                    Book
+                  </Link>
                 </div>
 
-                <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl">
+                {/* Heading — shorter on mobile */}
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight text-white">
                   Your Health
-                  <br />
-                  <span className="text-blue-200">Journey Awaits</span>
+                  <span className="text-blue-200"> Journey</span>
                 </h1>
-                <p className="mt-3 max-w-md text-sm leading-relaxed text-blue-100/85">
+                {/* Subtitle — hidden on very small screens to save space */}
+                <p className="hidden sm:block mt-2 text-sm leading-relaxed text-blue-100/80 max-w-sm">
                   Track consultations, manage bookings, and stay on top of your
-                  healthcare — all from one place.
+                  healthcare.
                 </p>
 
-                {/* Stat pills — only after data loads */}
+                {/* Stat pills */}
                 {!loading && <StatCards appointments={appointments} />}
               </div>
 
-              {/* Right — animated illustration */}
-              <div className="hidden md:block md:h-52 md:w-56 lg:h-72 lg:w-80 flex-shrink-0 relative">
+              {/* Right — illustration, desktop only */}
+              <div className="hidden md:block md:h-52 md:w-56 lg:h-64 lg:w-72 flex-shrink-0 relative">
                 <HeroIllustration />
               </div>
             </div>
           </div>
 
-          {/* ============================================================
+          {/* ===================================================
               FILTER CHIPS
-              ============================================================ */}
-          <FilterChips active={statusFilter} onChange={setStatusFilter} />
+              =================================================== */}
+          <div
+            className="anim-fade-up d2 rounded-2xl p-3 sm:p-4 shadow-sm"
+            style={{
+              background: 'rgba(255,255,255,0.85)',
+              backdropFilter: 'blur(16px)',
+            }}
+          >
+            <FilterChips active={statusFilter} onChange={setStatusFilter} />
+          </div>
 
-          {/* ============================================================
+          {/* ===================================================
               RESULTS LABEL
-              ============================================================ */}
+              =================================================== */}
           {!loading && appointments.length > 0 && (
-            <div className="anim-fade-up d3 flex items-center gap-3">
+            <div className="anim-fade-up d3 flex items-center gap-3 px-1">
               <div className="flex items-center gap-2">
-                <div className="rounded-xl bg-blue-50 p-2">
+                <div className="rounded-xl bg-blue-50 p-1.5">
                   <svg
-                    className="h-4 w-4 text-blue-600"
+                    className="h-3.5 w-3.5 text-blue-600"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    strokeWidth={1.8}
+                    strokeWidth={2}
                   >
                     <path
                       strokeLinecap="round"
@@ -1316,7 +1201,7 @@ const AppointmentsPage = () => {
                     />
                   </svg>
                 </div>
-                <span className="font-bold text-slate-800">
+                <span className="font-bold text-sm text-slate-800">
                   {appointments.length} appointment
                   {appointments.length !== 1 ? 's' : ''}
                 </span>
@@ -1330,24 +1215,21 @@ const AppointmentsPage = () => {
             </div>
           )}
 
-          {/* ============================================================
-              CONTENT — Skeletons / Empty / Cards
-              ============================================================ */}
+          {/* ===================================================
+              CONTENT
+              =================================================== */}
           {loading ? (
-            /* Skeleton grid */
-            <div className="grid gap-5 lg:grid-cols-2">
+            <div className="grid gap-4 sm:gap-5 lg:grid-cols-2">
               {Array.from({ length: 4 }).map((_, i) => (
                 <SkeletonCard key={i} />
               ))}
             </div>
           ) : appointments.length === 0 ? (
-            /* Empty state */
             <div className="grid lg:grid-cols-2">
               <EmptyState filter={statusFilter} />
             </div>
           ) : (
-            /* Appointment card grid */
-            <div className="grid gap-5 lg:grid-cols-2">
+            <div className="grid gap-4 sm:gap-5 lg:grid-cols-2">
               {appointments.map((appt, i) => (
                 <AppointmentCard
                   key={appt._id}
@@ -1358,12 +1240,12 @@ const AppointmentsPage = () => {
               ))}
             </div>
           )}
+
+          {/* Bottom padding for mobile nav bars */}
+          <div className="h-4 sm:h-0" />
         </div>
       </div>
 
-      {/* ============================================================
-          CANCEL MODAL (portal-like, fixed overlay)
-          ============================================================ */}
       <CancelModal
         open={cancelModalOpen}
         reason={cancelReason}
