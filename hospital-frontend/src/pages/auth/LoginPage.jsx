@@ -50,8 +50,17 @@ const LoginPage = () => {
 
     try {
       setLoading(true);
-      await login(formData);
+      const responce = await login(formData);
+      // after login API call
+      // console.log(responce.data.token);
+
+      // console.log(responce.data);
+      if (responce.data.token) {
+        localStorage.setItem('accessToken', responce.data.token);
+      }
+      // console.log(localStorage.getItem('accessToken'));
       await fetchCurrentUser();
+
       const { user: currentUser, doctorProfile } = useAuthStore.getState();
       toast.success('Login successful');
 

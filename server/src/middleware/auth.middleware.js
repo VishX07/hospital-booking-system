@@ -5,7 +5,8 @@ import User from '../models/User.model.js';
 
 const protect = asyncHandler(async (req, res, next) => {
   // 1. Read accessToken from cookies
-  const token = req.cookies?.accessToken;
+  const token =
+    req.cookies?.accessToken || req.headers.authorization?.split(' ')[1];
 
   // 2. Token missing
   if (!token) {
