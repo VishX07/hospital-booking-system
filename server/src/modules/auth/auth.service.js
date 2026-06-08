@@ -292,6 +292,7 @@ export const googleLoginService = async (credential) => {
       email: user.email,
       role: user.role,
       isVerified: user.isVerified,
+      profilePicture: user.profilePicture,
     },
   };
 };

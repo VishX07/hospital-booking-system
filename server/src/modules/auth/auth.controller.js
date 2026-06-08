@@ -165,6 +165,7 @@ export const googleLoginWithAccessToken = asyncHandler(async (req, res) => {
       email: user.email,
       role: user.role,
       isVerified: user.isVerified,
+      profilePicture: user.profilePicture,
     },
     token,
   });

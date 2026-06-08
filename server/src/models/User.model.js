@@ -49,7 +49,8 @@ const userSchema = new mongoose.Schema(
 
     profilePicture: {
       type: String,
-      default: '',
+      default:
+        'https://res.cloudinary.com/alpha-/image/upload/v1780890293/profile-photos/hdzaiesratz9acctnqab.jpg',
     },
 
     role: {
