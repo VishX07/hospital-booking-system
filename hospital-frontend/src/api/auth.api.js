@@ -28,7 +28,7 @@ export const changePassword = () => api.post('/auth/send-change-password-otp');
 
 // Verify OTP + change
 export const changeNewPassword = (data) =>
-  api.post('/auth/change-password', data);
+  api.patch('/auth/change-password', data);
 
 // user.api.js
 

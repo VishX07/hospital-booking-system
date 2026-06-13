@@ -90,11 +90,25 @@ const drawHeader = (doc) => {
   //   .fontSize(6.5)
   //   .fillColor(COLORS.muted)
   //   .text('HOSPITAL\nLOGO', ML, y + 22, { width: 62, align: 'center' });
-  doc.image('src/assets/hospital_logoo.png', ML, y, { width: 62, height: 54 });
+  // doc.image('src/assets/hospital_logoo.png', ML, y, { width: 62, height: 54 });
   // ↑ Replace above 2 lines with:
   //   doc.image("path/to/logo.png", ML, y, { width: 62, height: 62 });
 
   // Hospital name + tagline
+
+  import path from 'path';
+  import { fileURLToPath } from 'url';
+
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  const logoPath = path.join(__dirname, '../assets/hospital_logoo.png');
+
+  doc.image(logoPath, ML, y, {
+    width: 62,
+    height: 54,
+  });
+
   const tx = ML + 76;
   doc
     .font(FONT.bold)

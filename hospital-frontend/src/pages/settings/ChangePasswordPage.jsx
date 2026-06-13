@@ -475,6 +475,7 @@ const ChangePasswordPage = () => {
     }
     try {
       setLoading(true);
+      console.log(formData.otp, formData.newPassword);
       await changeNewPassword({
         otp: formData.otp,
         newPassword: formData.newPassword,
