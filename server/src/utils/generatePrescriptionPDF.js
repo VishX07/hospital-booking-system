@@ -1,5 +1,6 @@
 import PDFDocument from 'pdfkit';
-
+import path from 'path';
+import { fileURLToPath } from 'url';
 // ─── THEME ────────────────────────────────────────────────────────────────────
 const COLORS = {
   primary: '#1a5276',
@@ -95,9 +96,6 @@ const drawHeader = (doc) => {
   //   doc.image("path/to/logo.png", ML, y, { width: 62, height: 62 });
 
   // Hospital name + tagline
-
-  import path from 'path';
-  import { fileURLToPath } from 'url';
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
