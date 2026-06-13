@@ -100,7 +100,7 @@ const drawHeader = (doc) => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
 
-  const logoPath = path.join(__dirname, '../assets/hospital_logoo.png');
+  const logoPath = path.join(__dirname, '../assets/Hospital_logoo.png');
 
   doc.image(logoPath, ML, y, {
     width: 62,
